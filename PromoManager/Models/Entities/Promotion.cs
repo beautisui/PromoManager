@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PromoManager.Models.Entities
 {
     public class Promotion
     {
-        [Required]
-        public string PromoId { get; set; } 
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
+        public long PromoId { get; set; }
         
         [Required]
         public string Item { get; set; }
