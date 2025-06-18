@@ -2,6 +2,7 @@ using PromoManager.Models.Entities;
 using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using PromoManager.Models.Dtos;
 
 namespace PromoManager.Repository;
 
@@ -28,21 +29,52 @@ public class PromoRepository : IPromoRepository
     }
 
 
-    public async Task<Promotion> AddPromotion(Promotion promotion)
+    public async Task<Promotion> AddPromotion(PromoDTO dto)
     {
         using var connection = CreateConnection();
+        connection.Open();
+        using var tx = connection.BeginTransaction();
 
-        var query = @"
-            INSERT INTO Promotions (Item, Store, StartDate, EndDate, Tactic) 
-            VALUES (@Item, @Store, @StartDate, @EndDate, @Tactic);
-            SELECT last_insert_rowid()";
+        try
+        {
+            //Insert Promotion
+            var insertPromo = @"
+            INSERT INTO Promotions (StartDate, EndDate, TacticId)
+            VALUES (@StartDate, @EndDate, @TacticId);
+            SELECT last_insert_rowid();";
 
-        var insertedId = await connection.ExecuteScalarAsync<long>(query, promotion);
+            var promoId = await connection.ExecuteScalarAsync<long>(
+                insertPromo, new { dto.StartDate, dto.EndDate, dto.TacticId }, tx);
 
-        var recentlyAddedPromo = await connection.QuerySingleAsync<Promotion>(
-            "SELECT * FROM Promotions WHERE PromoId = @Id",
-            new { Id = insertedId });
+            //Insert into PromoItems
+            foreach (var itemId in dto.ItemIds)
+            {
+                await connection.ExecuteAsync(
+                    "INSERT INTO PromoItems (PromoId, ItemId) VALUES (@PromoId, @ItemId);",
+                    new { PromoId = promoId, ItemId = itemId }, tx);
+            }
 
-        return recentlyAddedPromo;
+            //Insert into PromoStores
+            foreach (var storeId in dto.StoreIds)
+            {
+                await connection.ExecuteAsync(
+                    "INSERT INTO PromoStores (PromoId, StoreId) VALUES (@PromoId, @StoreId);",
+                    new { PromoId = promoId, StoreId = storeId }, tx);
+            }
+
+            tx.Commit();
+
+            //Return promotion
+            var promotion = await connection.QuerySingleAsync<Promotion>(
+                "SELECT * FROM Promotions WHERE PromoId = @Id", new { Id = promoId });
+
+            return promotion;
+        }
+        catch
+        {
+            tx.Rollback();
+            throw;
+        }
     }
+
 }

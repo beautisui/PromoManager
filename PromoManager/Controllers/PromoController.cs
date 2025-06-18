@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PromoManager.Models.Dtos;
 using PromoManager.Models.Entities;
 using PromoManager.Service;
 
@@ -8,25 +9,32 @@ namespace PromoManager.Controllers
     [Route("api/[controller]")]
     public class PromotionController : ControllerBase
     {
-        private readonly IPromoService _promoService;
+        private readonly IPromoService _service;
 
-        public PromotionController(IPromoService promoService)
+        public PromotionController(IPromoService service)
         {
-            _promoService = promoService;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Promotion>>> GetPromotions()
-        {
-            var result = await _promoService.GetPromotions();
-            return Ok(result);
+            _service = service;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Promotion>> AddPromotion([FromBody] Promotion promotion)
+        public async Task<IActionResult> CreatePromotion([FromBody] PromoDTO dto)
         {
-            var result = await _promoService.AddPromotion(promotion);
-            return CreatedAtAction(nameof(GetPromotions), new { id = result.PromoId }, result);
+            try
+            {
+                var result = await _service.AddPromotion(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to create promotion", error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllPromotions()
+        {
+            var result = await _service.GetAllPromotions();
+            return Ok(result);
         }
     }
 }

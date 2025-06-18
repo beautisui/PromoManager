@@ -1,24 +1,28 @@
+using PromoManager.Models.Dtos;
+using PromoManager.Models.Entities;
+
 using PromoManager.Models.Entities;
 using PromoManager.Repository;
 
-namespace PromoManager.Service;
-
-public class PromoService : IPromoService
+namespace PromoManager.Service
 {
-    private readonly IPromoRepository _repository;
-
-    public PromoService(IPromoRepository repository)
+    public class PromoService : IPromoService
     {
-       _repository = repository;
-    }
+        private readonly IPromoRepository _repository;
 
-    public async Task<IEnumerable<Promotion>> GetPromotions() 
-    {
-        return await _repository.GetAllPromotions();
-    }
+        public PromoService(IPromoRepository repository)
+        {
+            _repository = repository;
+        }
 
-    public async Task<Promotion> AddPromotion(Promotion promotion)
-    {
-        return await _repository.AddPromotion(promotion);
+        public async Task<Promotion> AddPromotion(PromoDTO dto)
+        {
+            return await _repository.AddPromotion(dto);
+        }
+
+        public async Task<IEnumerable<Promotion>> GetAllPromotions()
+        {
+            return await _repository.GetAllPromotions();
+        }
     }
 }

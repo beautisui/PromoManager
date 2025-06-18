@@ -1,10 +1,11 @@
+using PromoManager.Models.Dtos;
 using PromoManager.Models.Entities;
-using PromoManager.Repository;
 
-namespace PromoManager.Service;
-
-public interface IPromoService
+namespace PromoManager.Service
 {
-    Task<IEnumerable<Promotion>>  GetPromotions();
-    Task<Promotion>  AddPromotion(Promotion promotion);
+    public interface IPromoService
+    {
+        Task<Promotion> AddPromotion(PromoDTO dto);
+        Task<IEnumerable<Promotion>> GetAllPromotions();
+    }
 }
