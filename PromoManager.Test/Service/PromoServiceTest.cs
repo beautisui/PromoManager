@@ -29,12 +29,12 @@ public class PromoServiceTest
       {
          new Promotion
          {
-            PromoId = "1", Item = "Pen", Store = "Store1", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(1),
+            PromoId = 1, Item = "Pen", Store = "Store1", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(1),
             Tactic = "10% Off"
          },
          new Promotion
          {
-            PromoId = "2", Item = "Pencil", Store = "Store2", StartDate = DateTime.Now,
+          PromoId = 2, Item = "Pencil", Store = "Store2", StartDate = DateTime.Now,
             EndDate = DateTime.Now.AddDays(2), Tactic = "15% Off"
          }
       };
@@ -52,7 +52,7 @@ public class PromoServiceTest
    {
       var newPromo = new Promotion
       {
-         PromoId = "3",
+         PromoId = 3,
          Item = "Notebook",
          Store = "Store3",
          StartDate = DateTime.Now,
@@ -69,6 +69,6 @@ public class PromoServiceTest
       Assert.IsNotNull(newlyAddedPromotion);
       Assert.AreEqual("Notebook", newlyAddedPromotion.Item);
       Assert.AreEqual("Store3", newlyAddedPromotion.Store);
-      Assert.AreEqual("3", newlyAddedPromotion.PromoId);
+      Assert.AreEqual(3, newlyAddedPromotion.PromoId);
    }
 }
