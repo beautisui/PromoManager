@@ -9,6 +9,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPromoRepository, PromoRepository>();
 builder.Services.AddScoped<IPromoService, PromoService>();
 
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowSpecificOrigin",
+        corsPolicyBuilder => corsPolicyBuilder.WithOrigins("http://localhost:5173") 
+            .AllowAnyHeader()
+            .AllowAnyMethod()));
+
 try
 {
     using (var connection = new SqliteConnection(builder.Configuration.GetConnectionString("DefaultConnection")))
