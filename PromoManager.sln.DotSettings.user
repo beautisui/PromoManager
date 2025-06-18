@@ -1,0 +1,14 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AActionResultOfT_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2025_002E1_003Fresharper_002Dhost_003FSourcesCache_003F2a8a5156343c6853864d9956214644e750ec73ec2d90f1d3748e8a765eec_003FActionResultOfT_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AIConfiguration_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2025_002E1_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F649f9a5315084d038b64e29ea11b1fb57000_003F99_003F78724a9a_003FIConfiguration_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:Boolean x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/ShowAdvancedOptions/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/TestProjectMapping/=CDB37129_002DE872_002D487E_002D8574_002D881AD7535110/@EntryIndexedValue">85AA280C-65A7-4CA0-A368-683FB785ECC8</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/TestTemplateMapping/=NUnit3x/@EntryIndexedValue">db4927dd-2e12-48a7-9a84-2b7e3e31b9c8</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8b799b5d_002D525e_002D44ca_002Db6fb_002Db4d3b37b0631/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Tests.Test1&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.PromoServiceTest.GetAllPromotionsShouldReturnAllPromotions&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.PromoServiceTest.AddPromotionShouldAddAndReturnPromotion&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.PromoServiceTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
