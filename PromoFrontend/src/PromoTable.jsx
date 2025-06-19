@@ -61,6 +61,7 @@ export const PromoTable = () => {
 
 
 
+
 /*
   SELECT p.PromoId, p.StartDate, p.EndDate, t.TacticId, t.TacticType, i.ItemId, i.ItemName, s.StoreId, s.StoreName
     FROM Promotions p
