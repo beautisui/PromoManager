@@ -5,7 +5,7 @@ namespace PromoManager.Service
 {
     public interface IPromoService
     {
-        Task<Promotion> AddPromotion(PromoDTO dto);
-        Task<IEnumerable<Promotion>> GetAllPromotions();
+        Task<Promotion> AddPromotion(Promo dto);
+        Task<IEnumerable<PromotionResponse>> GetAllPromotions();
     }
 }

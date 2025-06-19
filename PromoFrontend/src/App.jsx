@@ -1,4 +1,5 @@
 import { PromoTable } from './PromoTable';
+import "./App.css"
 
 const App = () => {
 
@@ -11,4 +12,3 @@ const App = () => {
 };
 
 export default App;
-

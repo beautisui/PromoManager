@@ -1,7 +1,7 @@
 // Models/Dtos/PromoDTO.cs
 namespace PromoManager.Models.Dtos
 {
-    public class PromoDTO
+    public class Promo
     {
         public List<long> ItemIds { get; set; }
         public List<long> StoreIds { get; set; }

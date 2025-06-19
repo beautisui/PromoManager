@@ -15,12 +15,12 @@ namespace PromoManager.Service
             _repository = repository;
         }
 
-        public async Task<Promotion> AddPromotion(PromoDTO dto)
+        public async Task<Promotion> AddPromotion(Promo dto)
         {
             return await _repository.AddPromotion(dto);
         }
 
-        public async Task<IEnumerable<Promotion>> GetAllPromotions()
+        public async Task<IEnumerable<PromotionResponse>> GetAllPromotions()
         {
             return await _repository.GetAllPromotions();
         }

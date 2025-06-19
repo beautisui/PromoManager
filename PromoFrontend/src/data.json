@@ -1,0 +1,60 @@
+[
+    {
+        "promoId": 1,
+        "items": [
+            {
+                "id": 1,
+                "name": "Pen"
+            },
+            {
+                "id": 2,
+                "name": "Pencil"
+            }
+        ],
+        "stores": [
+            {
+                "id": 1,
+                "name": "store1"
+            },
+            {
+                "id": 2,
+                "name": "store2"
+            }
+        ],
+        "startTime": "2025-06-20",
+        "endTime": "2025-06-30",
+        "tactic": {
+            "tacticId": 1,
+            "type": "BOGO Free"
+        }
+    },
+    {
+        "promoId": 2,
+        "items": [
+            {
+                "id": 1,
+                "name": "Pen"
+            },
+            {
+                "id": 2,
+                "name": "Pencil"
+            }
+        ],
+        "stores": [
+            {
+                "id": 1,
+                "name": "store1"
+            },
+            {
+                "id": 2,
+                "name": "store2"
+            }
+        ],
+        "startTime": "2025-06-20",
+        "endTime": "2025-06-30",
+        "tactic": {
+            "tacticId": 1,
+            "type": "BOGO Free"
+        }
+    }
+]

@@ -17,7 +17,7 @@ namespace PromoManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePromotion([FromBody] PromoDTO dto)
+        public async Task<IActionResult> CreatePromotion([FromBody] Promo dto)
         {
             try
             {

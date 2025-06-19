@@ -178,6 +178,76 @@ This is the data format expected from the frontend when creating a promotion:
   "tacticId": 3
 }
 ```
+
+
+**Response Of all Promo**
+
+```json
+[
+  {
+    "promoId": 1,
+    "items": [
+      {
+        "id": 1,
+        "name": "Pen"
+      },
+      {
+        "id": 2,
+        "name": "Pencil"
+      }
+    ],
+    "stores": [
+      {
+        "id": 1,
+        "name": "store1"
+      },
+      {
+        "id": 2,
+        "name": "store2"
+      }
+    ],
+    "startTime": "2025-06-20",
+    "endTime": "2025-06-30",
+    "tactic": [
+      {
+        "tacticId": 1,
+        "tactic": "BOGO Free"
+      }
+    ]
+  },
+  {
+    "promoId": 2,
+    "items": [
+      {
+        "id": 1,
+        "name": "Pen"
+      },
+      {
+        "id": 2,
+        "name": "Pencil"
+      }
+    ],
+    "stores": [
+      {
+        "id": 1,
+        "name": "store1"
+      },
+      {
+        "id": 2,
+        "name": "store2"
+      }
+    ],
+    "startTime": "2025-06-20",
+    "endTime": "2025-06-30",
+    "tactic": [
+      {
+        "tacticId": 1,
+        "tactic": "BOGO Free"
+      }
+    ]
+  }
+]
+```
 # Useful SQL Queries
 
 Click the code block below to copy all important SQL queries:

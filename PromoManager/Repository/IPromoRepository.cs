@@ -5,7 +5,7 @@ namespace PromoManager.Repository
 {
     public interface IPromoRepository
     {
-        Task<IEnumerable<Promotion>> GetAllPromotions();
-        Task<Promotion> AddPromotion(PromoDTO dto);
+        Task<IEnumerable<PromotionResponse>> GetAllPromotions();
+        Task<Promotion> AddPromotion(Promo dto);
     }
 }
