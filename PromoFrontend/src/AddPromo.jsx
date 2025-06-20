@@ -3,7 +3,7 @@ import ItemSelector from './ItemSelector';
 import StoreSelector from './StoreSelector';
 import TacticSelector from './TacticSelector';
 import DateInput from './DateInput';
-import "./AddPromo.css";
+import "./css/AddPromo.css";
 
 export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
     const [selectedItems, setSelectedItems] = useState([]);

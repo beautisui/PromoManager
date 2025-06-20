@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import './PromoTable.css'
+import { useEffect } from 'react';
+import './css/PromoTable.css'
 
 const separateByComma = (arr, key = 'name') => arr.map(obj => obj[key]).join(', ');
 
@@ -54,36 +54,3 @@ export const PromoTable = ({ promotions, setPromotions }) => {
         </table>
     );
 };
-
-
-
-
-/*
-  SELECT p.PromoId, p.StartDate, p.EndDate, t.TacticId, t.TacticType, i.ItemId, i.ItemName, s.StoreId, s.StoreName
-    FROM Promotions p
-    JOIN Tactics t ON p.TacticId = t.TacticId
-    JOIN PromoItems pi ON pi.PromoId = p.PromoId
-    JOIN Items i ON i.ItemId = pi.ItemId
-    JOIN PromoStores ps ON ps.PromoId = p.PromoId
-    JOIN Stores s ON s.StoreId = ps.StoreId
-    ORDER BY p.PromoId DESC";
-*/
-
-/*
-SELEECT p.PromoId, p.StartDate, p.EndDate, t.TacticId, t.TacticType
-    FROM Promotions p
-    JOIN Tactics t ON p.TacticId = t.TacticId
-*/
-
-/*
-SELECT pi.PromoId, i.ItemId, i.ItemName
-    FROM PromoItems pi
-    JOIN Items i ON pi.ItemId = i.ItemId;
-*/
-
-/*
-SELECT 
-    ps.PromoId, s.StoreId, s.StoreName
-    FROM PromoStores ps
-    JOIN Stores s ON ps.StoreId = s.StoreId;
-*/

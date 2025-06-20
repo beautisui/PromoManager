@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PromoTable } from './PromoTable';
 import { AddPromoBtn } from './AddPromoBtn';
-import "./App.css"
+import "./css/App.css"
 
 const App = () => {
   const [promotions, setPromotions] = useState([]);
