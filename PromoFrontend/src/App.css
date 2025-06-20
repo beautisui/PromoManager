@@ -3,7 +3,7 @@ h1 {
   text-align: center;
 }
 
-.modal-overlay {
+.promo-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -16,7 +16,7 @@ h1 {
   z-index: 1000;
 }
 
-.modal {
+.promo-modal {
   background-color: white;
   border-radius: 10px;
   padding: 2rem;

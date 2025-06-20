@@ -20,17 +20,13 @@ const PromoRow = ({ promo }) => {
     );
 };
 
-export const PromoTable = () => {
-    const [promotions, setPromotions] = useState([]);
-
+export const PromoTable = ({ promotions, setPromotions }) => {
     console.log("Inside PromoTable ---> ");
 
     useEffect(() => {
         fetch("/api/promotion")
             .then(response => response.json())
-            .then(data => {
-                setPromotions(data);
-            })
+            .then(data => setPromotions(data))
             .catch(error => {
                 console.error("error during fetching promotions:", error);
             });

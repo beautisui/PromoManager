@@ -1,12 +1,16 @@
 import { useState } from 'react';
 
+const dbg = (x) => {
+    console.log("--------------------->", x);
+    return x;
+}
+
 const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
     const [showDropdown, setShowDropdown] = useState(false);
 
     const toggleItem = (id) => {
         setSelectedItems(prev =>
-            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-        );
+            dbg(prev).includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
     };
 
     const getItemNames = () => {
@@ -22,7 +26,7 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
             <div className="dropdown-box" onClick={() => setShowDropdown(!showDropdown)}>
                 {getItemNames() || "Select Items"}
             </div>
-            {showDropdown && (
+            {showDropdown ? (
                 <div className="dropdown-list">
                     {items.map(item => (
                         <div key={item.Id}>
@@ -36,7 +40,7 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
                         </div>
                     ))}
                 </div>
-            )}
+            ) : null}
         </div>
     );
 };

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import "./AddPromo.css";
 import ItemSelector from './ItemSelector';
 import StoreSelector from './StoreSelector';
 import TacticSelector from './TacticSelector';
 import DateInput from './DateInput';
+import "./AddPromo.css";
 
 export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
     const [selectedItems, setSelectedItems] = useState([]);
@@ -14,8 +14,8 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
 
     const handleSubmit = () => {
         onSave({
-            items: selectedItems,
-            stores: selectedStores,
+            itemIds: selectedItems,
+            storeIds: selectedStores,
             tacticId: selectedTactic,
             startDate,
             endDate,
@@ -23,7 +23,7 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
     };
 
     return (
-        <div className="modal">
+        <div className="promo-modal">
             <h2>Add Promotion</h2>
 
             <ItemSelector
