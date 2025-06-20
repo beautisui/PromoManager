@@ -76,7 +76,7 @@ try
     {
         @"INSERT OR IGNORE INTO Stores (StoreName) VALUES 
             ('Store1'), ('Store2'), ('Store3'), ('Store4'), ('Store5');",
-
+ 
         @"INSERT OR IGNORE INTO Items (ItemName) VALUES 
             ('Pen'), ('Pencil'), ('Notebook'), 
             ('Chips'), ('Chocolate'), ('Ice cream');",

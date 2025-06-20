@@ -157,11 +157,12 @@ Here is the **Acceptance Criteria** from the image in text format:
 
 ## API Endpoints
 
-| Method | Path                  | Description                       |
-|--------|-----------------------|-----------------------------------|
-| GET    | `/api/lookup/items`   | Fetches list of available items   |
-| GET    | `/api/lookup/stores`  | Fetches list of available stores  |
-| GET    | `/api/lookup/tactics` | Fetches list of promotion tactics |
+| Method | Path                           | Description                          |
+|--------|--------------------------------|--------------------------------------|
+| GET    | `/api/lookup/items`            | Fetches list of available items      |
+| GET    | `/api/lookup/stores`           | Fetches list of available stores     |
+| GET    | `/api/lookup/tactics`          | Fetches list of promotion tactics    |
+| GET    | `/api/lookup/availableOptions` | Fetch List of items, stores, tactics |
 
 ---
 

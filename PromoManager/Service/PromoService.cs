@@ -15,7 +15,7 @@ namespace PromoManager.Service
             _repository = repository;
         }
 
-        public async Task<Promotion> AddPromotion(Promo dto)
+        public async Task<long> AddPromotion(Promo dto)
         {
             return await _repository.AddPromotion(dto);
         }

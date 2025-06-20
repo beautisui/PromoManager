@@ -6,6 +6,7 @@ import "./css/App.css"
 const App = () => {
   const [promotions, setPromotions] = useState([]);
   const [addPromoStatus, setAddPromoStatus] = useState(false);
+  const [options, setOptions] = useState(null);
 
   const fetchPromotions = async () => {
     const response = await fetch("/api/promotion");
@@ -14,9 +15,17 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchPromotions();
+    fetch("/api/lookup/availableOptions")
+      .then((res) => res.json())
+      .then((data) => setOptions(data))
+      .catch((err) => console.error("Failed to fetch options", err));
   }, []);
 
+
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+  
   return (
     <main>
       <h1>Promo Manager</h1>
@@ -24,6 +33,7 @@ const App = () => {
         promoStatus={addPromoStatus}
         setAddPromoStatus={setAddPromoStatus}
         onPromoSave={fetchPromotions}
+        options={options}
       />
       <PromoTable
         promotions={promotions}

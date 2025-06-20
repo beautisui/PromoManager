@@ -63,42 +63,45 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
     }
 
 
-    public async Task<Promotion> AddPromotion(Promo dto)
+                                                 
+    public async Task<long> AddPromotion(Promo dto)
     {
         using var connection = CreateConnection();
         connection.Open();
         using var tx = connection.BeginTransaction();
-
+    
         try
         {
             var insertPromo = @"
             INSERT INTO Promotions (StartDate, EndDate, TacticId)
             VALUES (@StartDate, @EndDate, @TacticId);
             SELECT last_insert_rowid();";
-
+    
             var promoId = await connection.ExecuteScalarAsync<long>(
                 insertPromo, new { dto.StartDate, dto.EndDate, dto.TacticId }, tx);
-
+    
             foreach (var itemId in dto.ItemIds ?? Enumerable.Empty<long>())
             {
                 await connection.ExecuteAsync(
                     "INSERT INTO PromoItems (PromoId, ItemId) VALUES (@PromoId, @ItemId);",
                     new { PromoId = promoId, ItemId = itemId }, tx);
             }
-
+    
             foreach (var storeId in dto.StoreIds ?? Enumerable.Empty<long>())
             {
                 await connection.ExecuteAsync(
                     "INSERT INTO PromoStores (PromoId, StoreId) VALUES (@PromoId, @StoreId);",
                     new { PromoId = promoId, StoreId = storeId }, tx);
             }
-
+    
             tx.Commit();
-
+    
             var promotion = await connection.QuerySingleAsync<Promotion>(
                 "SELECT * FROM Promotions WHERE PromoId = @Id", new { Id = promoId });
-
-            return promotion;
+    
+            
+            Console.WriteLine($"========================================> {promoId}");
+            return promoId;
         }
         catch
         {

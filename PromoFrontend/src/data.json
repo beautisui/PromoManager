@@ -1,28 +1,64 @@
-[
-    {
-        "id": 1,
-        "Name": "paper"
-    },
-    {
-        "id": 2,
-        "Name": "paper"
-    },
-    {
-        "id": 3,
-        "Name": "Ice cream"
-    },
-    [
+{
+    "items": [
         {
-            "id": 1,
+            "Id": 1,
+            "Name": "Pen"
+        },
+        {
+            "Id": 2,
+            "Name": "Pencil"
+        },
+        {
+            "Id": 3,
+            "Name": "Notebook"
+        },
+        {
+            "Id": 4,
+            "Name": "Chips"
+        },
+        {
+            "Id": 5,
+            "Name": "Chocolate"
+        },
+        {
+            "Id": 6,
+            "Name": "Ice cream"
+        }
+    ],
+    "stores": [
+        {
+            "Id": 1,
             "Name": "Store1"
         },
         {
-            "id": 2,
+            "Id": 2,
             "Name": "Store2"
         },
         {
-            "id": 3,
+            "Id": 3,
             "Name": "Store3"
+        },
+        {
+            "Id": 4,
+            "Name": "Store4"
+        },
+        {
+            "Id": 5,
+            "Name": "Store5"
+        }
+    ],
+    "tactics": [
+        {
+            "Id": 1,
+            "Type": "25% off"
+        },
+        {
+            "Id": 2,
+            "Type": "1$ off"
+        },
+        {
+            "Id": 3,
+            "Type": "BOGO Free"
         }
     ]
-]
+}

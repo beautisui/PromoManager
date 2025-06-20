@@ -19,9 +19,7 @@ public class PromoServiceTest
       _mockRepo = new Mock<IPromoRepository>();
       _promoService = new PromoService(_mockRepo.Object);
    }
-
-
-
+   
    [Test]
    public async Task GetAllPromotionsShouldReturnAllPromotions()
    {

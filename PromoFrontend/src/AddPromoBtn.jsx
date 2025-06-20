@@ -1,31 +1,21 @@
 import { AddPromo } from './AddPromo';
 
-const addPromoPopup = (handleSavePromotion, closeCreatePromoPopup) => {
+
+
+const addPromoPopup = (handleSavePromotion, closeCreatePromoPopup, options) => {
     return <div className="promo-modal-overlay">
         <div className="promo-modal">
             <AddPromo
-                items={[
-                    { Id: 1, Name: 'Pen' },
-                    { Id: 2, Name: 'Pencil' },
-                    { Id: 3, Name: 'Notebook' }
-                ]}
-                stores={[
-                    { Id: 1, Name: 'Store1' },
-                    { Id: 2, Name: 'Store2' },
-                    { Id: 3, Name: 'Store3' }
-                ]}
-                tactics={[
-                    { tacticId: 1, type: '25% off' },
-                    { tacticId: 2, type: '$1 off' },
-                    { tacticId: 3, type: 'BOGO free' }
-                ]}
+                items={options.items}
+                stores={options.stores}
+                tactics={options.tactics}
                 onSave={handleSavePromotion}
                 onCancel={closeCreatePromoPopup} />
         </div>
     </div>;
 };
 
-export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave }) => {
+export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, options }) => {
     const openCreatePromoPopup = () => setAddPromoStatus(true);
     const closeCreatePromoPopup = () => setAddPromoStatus(false);
     const handleSavePromotion = async (promoData) => {
@@ -59,7 +49,7 @@ export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave }) => 
             <button className="btn" onClick={openCreatePromoPopup}>
                 <span>➕ Add Promotion</span>
             </button>
-            {promoStatus ? addPromoPopup(handleSavePromotion, closeCreatePromoPopup) : null}
+            {promoStatus ? addPromoPopup(handleSavePromotion, closeCreatePromoPopup, options) : null}
         </>
     );
 };

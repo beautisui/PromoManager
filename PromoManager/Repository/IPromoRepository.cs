@@ -6,6 +6,6 @@ namespace PromoManager.Repository
     public interface IPromoRepository
     {
         Task<IEnumerable<PromotionResponse>> GetAllPromotions();
-        Task<Promotion> AddPromotion(Promo dto);
+        Task<long> AddPromotion(Promo dto);
     }
 }
