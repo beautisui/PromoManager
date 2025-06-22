@@ -1,7 +1,5 @@
 import { AddPromo } from './AddPromo';
 
-
-
 const addPromoPopup = (handleSavePromotion, closeCreatePromoPopup, options) => {
     return <div className="promo-modal-overlay">
         <div className="promo-modal">

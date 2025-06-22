@@ -1,7 +1,12 @@
-const DateInput = ({ label, value, onChange }) => (
+const DateInput = ({ label, value, onChange, min }) => (
     <div>
         <label>{label}:</label>
-        <input type="date" value={value} onChange={e => onChange(e.target.value)} />
+        <input
+            type="date"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            min={min}
+        />
     </div>
 );
 

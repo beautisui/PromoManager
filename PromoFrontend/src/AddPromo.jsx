@@ -12,6 +12,8 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
+    const today = new Date().toISOString().split('T')[0];
+
     const handleSubmit = () => {
         onSave({
             itemIds: selectedItems,
@@ -44,11 +46,24 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
                 setSelectedTactic={setSelectedTactic}
             />
 
-            <DateInput label="Start Date" value={startDate} onChange={setStartDate} />
-            <DateInput label="End Date" value={endDate} onChange={setEndDate} />
+            <DateInput
+                label="Start Date"
+                value={startDate}
+                onChange={setStartDate}
+                min={today}
+            />
 
-            <button onClick={onCancel}>Cancel</button>
-            <button onClick={handleSubmit}>Save Promotion</button>
+            <DateInput
+                label="End Date"
+                value={endDate}
+                onChange={setEndDate}
+                min={startDate}
+            />
+
+            <div className="btn-group">
+                <button onClick={onCancel}>Cancel</button>
+                <button onClick={handleSubmit}>Save Promotion</button>
+            </div>
         </div>
     );
 };
