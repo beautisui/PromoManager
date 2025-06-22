@@ -36,5 +36,20 @@ namespace PromoManager.Controllers
             var result = await _service.GetAllPromotions();
             return Ok(result);
         }
+
+        [HttpDelete("{promoId}")]
+        public async Task<IActionResult> DeletePromotion(long promoId)
+        {
+            try
+            {
+                var deletedId = await _service.DeletePromotion(promoId);
+                return Ok(new { deletedPromoId = deletedId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to delete promotion", error = ex.Message });
+            }
+        }
+        
     }
 }

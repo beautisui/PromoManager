@@ -25,7 +25,7 @@ const App = () => {
   useEffect(() => {
     fetchPromotions();
   }, []);
-  
+
   return (
     <main>
       <h1>Promo Manager</h1>
@@ -37,7 +37,8 @@ const App = () => {
       />
       <PromoTable
         promotions={promotions}
-        setPromotions={setPromotions} />
+        setPromotions={setPromotions}
+        fetchPromotions={fetchPromotions} />
     </main >
   );
 };

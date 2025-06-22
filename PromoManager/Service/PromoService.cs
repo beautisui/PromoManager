@@ -24,5 +24,10 @@ namespace PromoManager.Service
         {
             return await _repository.GetAllPromotions();
         }
+
+        public Task<long> DeletePromotion(long promoId)
+        {
+            return _repository.DeletePromotion(promoId);
+        }
     }
 }

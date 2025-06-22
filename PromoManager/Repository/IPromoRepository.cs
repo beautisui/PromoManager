@@ -7,5 +7,6 @@ namespace PromoManager.Repository
     {
         Task<IEnumerable<PromotionResponse>> GetAllPromotions();
         Task<long> AddPromotion(Promo dto);
+        Task<long> DeletePromotion(long promoId);
     }
 }

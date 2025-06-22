@@ -3,7 +3,7 @@ import './css/PromoTable.css'
 
 const separateByComma = (arr, key = 'name') => arr.map(obj => obj[key]).join(', ');
 
-const PromoRow = ({ promo }) => {
+const PromoRow = ({ promo, onDelete }) => {
     return (
         <tr>
             <td>{promo.promoId}</td>
@@ -14,14 +14,29 @@ const PromoRow = ({ promo }) => {
             <td>{promo.tactic.type}</td>
             <td>
                 <button>Edit</button>
-                <button>Delete</button>
+                <button onClick={() => onDelete(promo.promoId)}>Delete</button>
             </td>
         </tr>
     );
 };
 
-export const PromoTable = ({ promotions, setPromotions }) => {
+export const PromoTable = ({ promotions, setPromotions, fetchPromotions }) => {
     console.log("Inside PromoTable ---> ");
+
+    const handleDelete = async (promoId) => {
+        try {
+            const res = await fetch(`/api/promotion/${promoId}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) throw new Error("Failed to delete promotion");
+            await fetchPromotions();
+
+        } catch (err) {
+            console.error("Delete error:", err);
+        }
+    };
+
 
     useEffect(() => {
         fetch("/api/promotion")
@@ -48,7 +63,7 @@ export const PromoTable = ({ promotions, setPromotions }) => {
             </thead>
             <tbody>
                 {promotions.map(promo => (
-                    <PromoRow key={promo.promoId} promo={promo} />
+                    <PromoRow key={promo.promoId} promo={promo} onDelete={handleDelete} />
                 ))}
             </tbody>
         </table>

@@ -109,4 +109,27 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             throw;
         }
     }
+
+    public async Task<long> DeletePromotion(long promoId)
+    {
+        using var connection = CreateConnection();
+        connection.Open();
+        using var tx = connection.BeginTransaction();
+
+        try
+        {
+            await connection.ExecuteAsync("DELETE FROM PromoItems WHERE PromoId = @promoId", new { promoId }, tx);
+            await connection.ExecuteAsync("DELETE FROM PromoStores WHERE PromoId = @promoId", new { promoId }, tx);
+            await connection.ExecuteAsync("DELETE FROM Promotions WHERE PromoId = @promoId", new { promoId }, tx);
+
+             tx.Commit();
+            return promoId;
+        }
+        catch
+        {
+             tx.Rollback();
+            throw;
+        }
+    }
+
 }
