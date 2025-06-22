@@ -1,7 +1,6 @@
 using PromoManager.Models.Dtos;
 using PromoManager.Models.Entities;
 
-using PromoManager.Models.Entities;
 using PromoManager.Repository;
 
 namespace PromoManager.Service
@@ -17,6 +16,14 @@ namespace PromoManager.Service
 
         public async Task<long> AddPromotion(Promo dto)
         {
+            var today = DateTime.UtcNow.Date;
+
+            if (dto.StartDate.Date < today)
+                throw new ArgumentException("Start date must be today or in the future.");
+
+            if (dto.EndDate.Date < dto.StartDate.Date)
+                throw new ArgumentException("End date must be the same or after the start date.");
+            
             return await _repository.AddPromotion(dto);
         }
 

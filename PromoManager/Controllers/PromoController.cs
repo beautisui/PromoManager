@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using PromoManager.Models.Dtos;
-using PromoManager.Models.Entities;
 using PromoManager.Service;
 
 namespace PromoManager.Controllers
