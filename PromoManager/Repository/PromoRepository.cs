@@ -90,51 +90,61 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
     return AllPromoDetails;
 }
                                                  
-    public async Task<long> AddPromotion(Promo dto)
+public async Task<long> AddPromotion(Promo dto)
+{
+    using var connection = CreateConnection();
+    connection.Open();
+    using var tx = connection.BeginTransaction();
+
+    try
     {
-        using var connection = CreateConnection();
-        connection.Open();
-        using var tx = connection.BeginTransaction();
-    
-        try
-        {
-            var insertPromo = @"
-            INSERT INTO Promotions (StartDate, EndDate, TacticId)
-            VALUES (@StartDate, @EndDate, @TacticId);
-            SELECT last_insert_rowid();";
-    
-            var promoId = await connection.ExecuteScalarAsync<long>(
-                insertPromo, new { dto.StartDate, dto.EndDate, dto.TacticId }, tx);
-    
-            foreach (var itemId in dto.ItemIds ?? Enumerable.Empty<long>())
-            {
-                await connection.ExecuteAsync(
-                    "INSERT INTO PromoItems (PromoId, ItemId) VALUES (@PromoId, @ItemId);",
-                    new { PromoId = promoId, ItemId = itemId }, tx);
-            }
-    
-            foreach (var storeId in dto.StoreIds ?? Enumerable.Empty<long>())
-            {
-                await connection.ExecuteAsync(
-                    "INSERT INTO PromoStores (PromoId, StoreId) VALUES (@PromoId, @StoreId);",
-                    new { PromoId = promoId, StoreId = storeId }, tx);
-            }
-    
-            tx.Commit();
-    
-            var promotion = await connection.QuerySingleAsync<Promotion>(
-                "SELECT * FROM Promotions WHERE PromoId = @Id", new { Id = promoId });
-    
-            
-            Console.WriteLine($"========================================> {promoId}");
-            return promoId;
-        }
-        catch
-        {
-            tx.Rollback();
-            throw;
-        }
+        var promoId = await InsertPromotion(connection, tx, dto);
+        await InsertPromoItems(connection, tx, promoId, dto.ItemIds);
+        await InsertPromoStores(connection, tx, promoId, dto.StoreIds);
+
+        tx.Commit();
+        return promoId;
     }
+    catch
+    {
+        tx.Rollback();
+        throw;
+    }
+}
+
+private async Task<long> InsertPromotion(IDbConnection connection, IDbTransaction tx, Promo dto)
+{
+    const string insertPromo = @"
+        INSERT INTO Promotions (StartDate, EndDate, TacticId)
+        VALUES (@StartDate, @EndDate, @TacticId);
+        SELECT last_insert_rowid();";
+
+    return await connection.ExecuteScalarAsync<long>(insertPromo, new { dto.StartDate, dto.EndDate, dto.TacticId },tx);
+}
+
+private async Task InsertPromoItems(IDbConnection connection, IDbTransaction tx, long promoId, IEnumerable<long>? itemIds)
+{
+    if (itemIds is null) return;
+
+    const string insertItem = "INSERT INTO PromoItems (PromoId, ItemId) VALUES (@PromoId, @ItemId);";
+
+    foreach (var itemId in itemIds)
+    {
+        await connection.ExecuteAsync(insertItem, new { PromoId = promoId, ItemId = itemId }, tx);
+    }
+}
+private async Task InsertPromoStores(IDbConnection connection, IDbTransaction tx, long promoId, IEnumerable<long>? storeIds)
+{
+    if (storeIds is null) return;
+
+    const string insertStore = "INSERT INTO PromoStores (PromoId, StoreId) VALUES (@PromoId, @StoreId);";
+
+    foreach (var storeId in storeIds)
+    {
+        await connection.ExecuteAsync(insertStore, new { PromoId = promoId, StoreId = storeId }, tx);
+    }
+}
+
 
     public async Task<long> DeletePromotion(long promoId)
     {
