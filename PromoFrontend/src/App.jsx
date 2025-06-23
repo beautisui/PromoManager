@@ -1,18 +1,28 @@
 import { useState, useEffect } from 'react';
 import { PromoTable } from './PromoTable';
 import { AddPromoBtn } from './AddPromoBtn';
-import "./css/App.css"
+import './css/App.css';
 
 const App = () => {
   const [promotions, setPromotions] = useState([]);
   const [addPromoStatus, setAddPromoStatus] = useState(false);
   const [options, setOptions] = useState(null);
+  const [sortBy, setSortBy] = useState("promoId");
+  const [sortOrder, setSortOrder] = useState("desc");
 
-  const fetchPromotions = async () => {
-    const response = await fetch("/api/promotion");
-    const data = await response.json();
-    setPromotions(data);
+  const fetchPromotions = async (field = sortBy, order = sortOrder) => {
+    try {
+      const response = await fetch(`/api/promotion?sortBy=${field}&sortOrder=${order}`);
+      const data = await response.json();
+      setPromotions(data);
+    } catch (error) {
+      console.error("Failed to fetch promotions:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchPromotions();
+  }, [sortBy, sortOrder]);
 
   useEffect(() => {
     fetch("/api/lookup/availableOptions")
@@ -22,24 +32,27 @@ const App = () => {
   }, []);
 
 
-  useEffect(() => {
-    fetchPromotions();
-  }, []);
 
   return (
     <main>
       <h1>Promo Manager</h1>
-      <AddPromoBtn
-        promoStatus={addPromoStatus}
-        setAddPromoStatus={setAddPromoStatus}
-        onPromoSave={fetchPromotions}
-        options={options}
-      />
+      {options && (
+        <AddPromoBtn
+          promoStatus={addPromoStatus}
+          setAddPromoStatus={setAddPromoStatus}
+          onPromoSave={fetchPromotions}
+          options={options}
+        />
+      )}
       <PromoTable
         promotions={promotions}
-        setPromotions={setPromotions}
-        fetchPromotions={fetchPromotions} />
-    </main >
+        onSave={fetchPromotions}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        setSortBy={setSortBy}
+        setSortOrder={setSortOrder}
+      />
+    </main>
   );
 };
 

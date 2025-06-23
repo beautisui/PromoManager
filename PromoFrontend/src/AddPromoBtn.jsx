@@ -16,6 +16,7 @@ const addPromoPopup = (handleSavePromotion, closeCreatePromoPopup, options) => {
 export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, options }) => {
     const openCreatePromoPopup = () => setAddPromoStatus(true);
     const closeCreatePromoPopup = () => setAddPromoStatus(false);
+
     const handleSavePromotion = async (promoData) => {
         try {
             const response = await fetch("/api/promotion", {
@@ -29,12 +30,10 @@ export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, optio
             if (!response.ok) {
                 throw new Error("Failed to save promotion");
             }
+
             setAddPromoStatus(false);
-
-            if (onPromoSave) {
-                onPromoSave();
-            }
-
+            console.log(onPromoSave);
+            onPromoSave();
         }
         catch (err) {
             console.error("error => ", err.message);

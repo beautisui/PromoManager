@@ -1,5 +1,4 @@
 using Moq;
-using NUnit.Framework;
 using PromoManager.Models.Dtos;
 using PromoManager.Repository;
 using PromoManager.Service;
@@ -78,6 +77,6 @@ public class PromoServiceTest
 
         var result = await _promoService.DeletePromotion(promoId);
 
-        Assert.AreEqual(5, result);
+        Assert.AreEqual(5≥, result);
     }
 }

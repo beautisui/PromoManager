@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import './css/PromoTable.css';
 
 const separateByComma = (arr, key = 'name') =>
@@ -23,63 +22,47 @@ const PromoRow = ({ promo, onDelete }) => (
     </tr>
 );
 
-export const PromoTable = () => {
-    const [promotions, setPromotions] = useState([]);
-    const [sortBy, setSortBy] = useState("promoId");
-    const [sortOrder, setSortOrder] = useState("desc");
+export const PromoTable = ({ promotions, onSave, sortBy, sortOrder, setSortBy, setSortOrder }) => {
+    const handleHeaderClick = (field) => {
+        if (sortBy === field) {
+            setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
+        } else {
+            setSortBy(field);
+            setSortOrder("desc");
+        }
+    };
 
-    const handleDelete = async (promoId) => {
+    const handleDeletePromo = async (promoId) => {
         try {
-            const res = await fetch(`/api/promotion/${promoId}`, {
-                method: "DELETE"
-            });
-
-            if (!res.ok) throw new Error("Failed to delete promotion");
-            await fetchPromotions();
-
+            const res = await fetch(`/api/promotion/${promoId}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Delete failed");
+            onSave();
         } catch (err) {
             console.error("Delete error:", err);
         }
     };
 
-
-    const fetchPromotions = async (sortField = sortBy, order = sortOrder) => {
-        const response = await fetch(`/api/promotion?sortBy=${sortField}&sortOrder=${order}`);
-        const data = await response.json();
-        setPromotions(data);
-    };
-
-    useEffect(() => {
-        fetchPromotions();
-    }, [sortBy, sortOrder]);
-
-    const handleHeaderClick = (field) => {
-        if (sortBy === field) {
-            setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
-            return;
-        }
-
-        setSortBy(field);
-        setSortOrder("desc");
+    const renderSortIndicator = (field) => {
+        if (sortBy !== field) return '';
+        return sortOrder === 'asc' ? ' 🔼' : ' 🔽';
     };
 
     return (
         <table className="promo-table">
             <thead>
                 <tr>
-                    <th onClick={() => handleHeaderClick("promoId")}>Promo ID</th>
-                    <th onClick={() => handleHeaderClick("items")}>Items</th>
-                    <th onClick={() => handleHeaderClick("stores")}>Stores</th>
-                    <th onClick={() => handleHeaderClick("startTime")}>Start Date</th>
-                    <th onClick={() => handleHeaderClick("endTime")}>End Date</th>
-                    <th onClick={() => handleHeaderClick("tactic")}>Tactic</th>
+                    <th onClick={() => handleHeaderClick("promoId")}>Promo ID{renderSortIndicator("promoId")}</th>
+                    <th onClick={() => handleHeaderClick("items")}>Items{renderSortIndicator("items")}</th>
+                    <th onClick={() => handleHeaderClick("stores")}>Stores{renderSortIndicator("stores")}</th>
+                    <th onClick={() => handleHeaderClick("startTime")}>Start Date{renderSortIndicator("startTime")}</th>
+                    <th onClick={() => handleHeaderClick("endTime")}>End Date{renderSortIndicator("endTime")}</th>
+                    <th onClick={() => handleHeaderClick("tactic")}>Tactic{renderSortIndicator("tactic")}</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {promotions.map(promo => (
-                    <PromoRow key={promo.promoId} promo={promo} onDelete={handleDelete} />
-
+                    <PromoRow key={promo.promoId} promo={promo} onDelete={() => handleDeletePromo(promo.promoId)} />
                 ))}
             </tbody>
         </table>
