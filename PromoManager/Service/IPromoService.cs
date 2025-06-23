@@ -6,7 +6,7 @@ namespace PromoManager.Service
     public interface IPromoService
     {
         Task<long> AddPromotion(Promo dto);
-        Task<IEnumerable<PromotionResponse>> GetAllPromotions();
+        Task<IEnumerable<PromotionResponse>> GetAllPromotions(string sortBy, string sortOrder); // updated
         Task<long> DeletePromotion(long promoId);
     }
 }

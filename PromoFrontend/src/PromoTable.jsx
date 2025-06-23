@@ -1,27 +1,32 @@
-import { useEffect } from 'react';
-import './css/PromoTable.css'
+import { useState, useEffect } from 'react';
+import './css/PromoTable.css';
 
-const separateByComma = (arr, key = 'name') => arr.map(obj => obj[key]).join(', ');
+const separateByComma = (arr, key = 'name') =>
+    arr
+        .slice()
+        .sort((a, b) => b[key].localeCompare(a[key]))
+        .map(obj => obj[key])
+        .join(', ');
 
-const PromoRow = ({ promo, onDelete }) => {
-    return (
-        <tr>
-            <td>{promo.promoId}</td>
-            <td>{separateByComma(promo.items)}</td>
-            <td>{separateByComma(promo.stores)}</td>
-            <td>{promo.startTime.slice(0, 10)}</td>
-            <td>{promo.endTime.slice(0, 10)}</td>
-            <td>{promo.tactic.type}</td>
-            <td>
-                <button>Edit</button>
-                <button onClick={() => onDelete(promo.promoId)}>Delete</button>
-            </td>
-        </tr>
-    );
-};
+const PromoRow = ({ promo, onDelete }) => (
+    <tr>
+        <td>{promo.promoId}</td>
+        <td>{separateByComma(promo.items)}</td>
+        <td>{separateByComma(promo.stores)}</td>
+        <td>{promo.startTime.slice(0, 10)}</td>
+        <td>{promo.endTime.slice(0, 10)}</td>
+        <td>{promo.tactic.type}</td>
+        <td>
+            <button>Edit</button>
+            <button onClick={() => onDelete(promo.promoId)}>Delete</button>
+        </td>
+    </tr>
+);
 
-export const PromoTable = ({ promotions, setPromotions, fetchPromotions }) => {
-    console.log("Inside PromoTable ---> ");
+export const PromoTable = () => {
+    const [promotions, setPromotions] = useState([]);
+    const [sortBy, setSortBy] = useState("promoId");
+    const [sortOrder, setSortOrder] = useState("desc");
 
     const handleDelete = async (promoId) => {
         try {
@@ -38,32 +43,43 @@ export const PromoTable = ({ promotions, setPromotions, fetchPromotions }) => {
     };
 
 
-    useEffect(() => {
-        fetch("/api/promotion")
-            .then(response => response.json())
-            .then(data => setPromotions(data))
-            .catch(error => {
-                console.error("error during fetching promotions:", error);
-            });
-    }, []);
+    const fetchPromotions = async (sortField = sortBy, order = sortOrder) => {
+        const response = await fetch(`/api/promotion?sortBy=${sortField}&sortOrder=${order}`);
+        const data = await response.json();
+        setPromotions(data);
+    };
 
+    useEffect(() => {
+        fetchPromotions();
+    }, [sortBy, sortOrder]);
+
+    const handleHeaderClick = (field) => {
+        if (sortBy === field) {
+            setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
+            return;
+        }
+
+        setSortBy(field);
+        setSortOrder("desc");
+    };
 
     return (
         <table className="promo-table">
             <thead>
                 <tr>
-                    <th>Promo ID</th>
-                    <th>Items</th>
-                    <th>Stores</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Tactic</th>
+                    <th onClick={() => handleHeaderClick("promoId")}>Promo ID</th>
+                    <th onClick={() => handleHeaderClick("items")}>Items</th>
+                    <th onClick={() => handleHeaderClick("stores")}>Stores</th>
+                    <th onClick={() => handleHeaderClick("startTime")}>Start Date</th>
+                    <th onClick={() => handleHeaderClick("endTime")}>End Date</th>
+                    <th onClick={() => handleHeaderClick("tactic")}>Tactic</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {promotions.map(promo => (
                     <PromoRow key={promo.promoId} promo={promo} onDelete={handleDelete} />
+
                 ))}
             </tbody>
         </table>

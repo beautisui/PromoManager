@@ -30,11 +30,12 @@ namespace PromoManager.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPromotions()
+        public async Task<IActionResult> GetAllPromotions([FromQuery] string sortBy = "promoId", [FromQuery] string sortOrder = "desc")
         {
-            var result = await _service.GetAllPromotions();
+            var result = await _service.GetAllPromotions(sortBy, sortOrder);
             return Ok(result);
         }
+
 
         [HttpDelete("{promoId}")]
         public async Task<IActionResult> DeletePromotion(long promoId)

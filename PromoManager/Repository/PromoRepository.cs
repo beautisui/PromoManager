@@ -14,55 +14,81 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         return new SqliteConnection(configuration.GetConnectionString("DefaultConnection"));
     }
 
-    public async Task<IEnumerable<PromotionResponse>> GetAllPromotions()
+   public async Task<IEnumerable<PromotionResponse>> GetAllPromotions(string sortBy, string sortOrder)
+{
+    using var connection = CreateConnection();
+
+    var orderByClause = sortBy.ToLower() switch
     {
-        using var connection = CreateConnection();
+        "starttime" => $"p.StartDate {sortOrder}",
+        "endtime" => $"p.EndDate {sortOrder}",
+        "tactic" => $"t.TacticType {sortOrder}",
+        "items" or "stores" => null,
+        _ => $"p.PromoId {sortOrder}"
+    };
 
-        var promotions = await connection.QueryAsync<(long PromoId, DateTime StartDate, DateTime EndDate, long TacticId, string TacticType)>(
-            @"SELECT p.PromoId, p.StartDate, p.EndDate, t.TacticId, t.TacticType
-          FROM Promotions p
-          JOIN Tactics t ON p.TacticId = t.TacticId
-          ORDER BY p.PromoId desc ");
+    var sql = @"SELECT p.PromoId, p.StartDate, p.EndDate, t.TacticId, t.TacticType
+                FROM Promotions p
+                JOIN Tactics t ON p.TacticId = t.TacticId";
+    if (orderByClause != null)
+        sql += $" ORDER BY {orderByClause}";
 
-        var promoItems = connection.Query<(long PromoId, long Id, string Name)>(
-                @"SELECT pi.PromoId, i.ItemId AS Id, i.ItemName AS Name
-      FROM PromoItems pi
-      JOIN Items i ON pi.ItemId = i.ItemId
-      ORDER BY Name")
-            .GroupBy(row => row.PromoId)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(pi => new Item { Id = pi.Id, Name = pi.Name })
-            );
+    var promotions = await connection.QueryAsync<(long PromoId, DateTime StartDate, DateTime EndDate, long TacticId, string TacticType)>(sql);
 
-        
-        var promoStores =  connection.Query<(long PromoId, long Id, string Name)>(
+    var promoItems = connection.Query<(long PromoId, long Id, string Name)>(
+            @"SELECT pi.PromoId, i.ItemId AS Id, i.ItemName AS Name
+              FROM PromoItems pi
+              JOIN Items i ON pi.ItemId = i.ItemId
+              ORDER BY Name")
+        .GroupBy(row => row.PromoId)
+        .ToDictionary(
+            group => group.Key,
+            group => group.Select(pi => new Item { Id = pi.Id, Name = pi.Name })
+        );
+
+    var promoStores = connection.Query<(long PromoId, long Id, string Name)>(
             @"SELECT ps.PromoId, s.StoreId AS Id, s.StoreName AS Name
-            FROM PromoStores ps
-            JOIN Stores s ON ps.StoreId = s.StoreId 
-             ORDER BY Name")
-            .GroupBy(row => row.PromoId)
-            .ToDictionary(promoStore => promoStore.Key, promoStore => promoStore
-                .Select(pi => new Store { Id = pi.Id, Name = pi.Name }));
+              FROM PromoStores ps
+              JOIN Stores s ON ps.StoreId = s.StoreId
+              ORDER BY Name")
+        .GroupBy(row => row.PromoId)
+        .ToDictionary(
+            group => group.Key,
+            group => group.Select(ps => new Store { Id = ps.Id, Name = ps.Name })
+        );
 
-        var AllPromoDetails = promotions.Select(p => new PromotionResponse
+    var AllPromoDetails = promotions.Select(p => new PromotionResponse
+    {
+        PromoId = p.PromoId,
+        StartTime = p.StartDate,
+        EndTime = p.EndDate,
+        Tactic = new Tactic
         {
-            PromoId = p.PromoId,
-            StartTime = p.StartDate,
-            EndTime = p.EndDate,
-            Tactic = new Tactic
-            {
-                TacticId = p.TacticId,
-                Type = p.TacticType
-            },
-            Items = promoItems[p.PromoId].ToList(),
-            Stores = promoStores[p.PromoId].ToList()
-        });
+            TacticId = p.TacticId,
+            Type = p.TacticType
+        },
+        Items = promoItems[p.PromoId].ToList(),
+        Stores = promoStores[p.PromoId].ToList()
 
-        return AllPromoDetails;
+    }).ToList();
+
+    if (sortBy == "items")
+    {
+        AllPromoDetails = (sortOrder == "asc"
+            ? AllPromoDetails.OrderBy(p => string.Join(",", p.Items.Select(i => i.Name)))
+            : AllPromoDetails.OrderByDescending(p => string.Join(",", p.Items.Select(i => i.Name)))
+        ).ToList();
+    }
+    else if (sortBy == "stores")
+    {
+        AllPromoDetails = (sortOrder == "asc"
+            ? AllPromoDetails.OrderBy(p => string.Join(",", p.Stores.Select(s => s.Name)))
+            : AllPromoDetails.OrderByDescending(p => string.Join(",", p.Stores.Select(s => s.Name)))
+        ).ToList();
     }
 
-
+    return AllPromoDetails;
+}
                                                  
     public async Task<long> AddPromotion(Promo dto)
     {

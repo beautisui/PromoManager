@@ -27,9 +27,9 @@ namespace PromoManager.Service
             return await _repository.AddPromotion(dto);
         }
 
-        public async Task<IEnumerable<PromotionResponse>> GetAllPromotions()
+        public async Task<IEnumerable<PromotionResponse>> GetAllPromotions(string sortBy, string sortOrder)
         {
-            return await _repository.GetAllPromotions();
+            return await _repository.GetAllPromotions(sortBy, sortOrder);
         }
 
         public Task<long> DeletePromotion(long promoId)
