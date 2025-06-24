@@ -36,15 +36,16 @@ public class PromoServiceTest
             }
         };
 
-        _mockRepo.Setup(repo => repo.GetAllPromotions())
-                 .ReturnsAsync(expectedPromos);
+        _mockRepo.Setup(repo => repo.GetAllPromotions("PromoId", "desc"))
+            .ReturnsAsync(expectedPromos);
 
-        var result = await _promoService.GetAllPromotions();
+        var result = await _promoService.GetAllPromotions("PromoId", "desc");
 
         Assert.AreEqual(1, result.Count());
         Assert.AreEqual(1, result.First().PromoId);
         Assert.AreEqual("Pen", result.First().Items.First().Name);
     }
+
 
     [Test]
     public async Task AddPromotionShouldReturnId()
@@ -77,6 +78,6 @@ public class PromoServiceTest
 
         var result = await _promoService.DeletePromotion(promoId);
 
-        Assert.AreEqual(5≥, result);
+        Assert.AreEqual(5, result);
     }
 }
