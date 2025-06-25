@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./PromoManager
+    image: promo-backend
+    container_name: promo-backend
+    ports:
+      - "5265:5265"
+    networks:
+      - promo-net
+
+  frontend:
+    build:
+      context: ./PromoFrontend
+    image: my-promo-application
+    container_name: promo-frontend
+    ports:
+      - "5173:80" # Assumes you're serving built Vite app via nginx
+    environment:
+      - VITE_API_BASE_URL=http://promo-backend:5265
+    networks:
+      - promo-net
+
+networks:
+  promo-net:
+    driver: bridge

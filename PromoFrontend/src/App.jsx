@@ -10,9 +10,14 @@ const App = () => {
   const [sortBy, setSortBy] = useState("promoId");
   const [sortOrder, setSortOrder] = useState("desc");
 
+  console.log(promotions);
+
   const fetchPromotions = async (field = sortBy, order = sortOrder) => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
     try {
-      const response = await fetch(`/api/promotion?sortBy=${field}&sortOrder=${order}`);
+      console.log(baseUrl, "================> Inside App ");
+      const response = await fetch(`${baseUrl}/api/promotion?sortBy=${field}&sortOrder=${order}`);
       const data = await response.json();
       setPromotions(data);
     } catch (error) {
@@ -25,7 +30,9 @@ const App = () => {
   }, [sortBy, sortOrder]);
 
   useEffect(() => {
-    fetch("/api/lookup/availableOptions")
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+    fetch(`${baseUrl}/api/lookup/availableOptions`)
       .then((res) => res.json())
       .then((data) => setOptions(data))
       .catch((err) => console.error("Failed to fetch options", err));
@@ -36,14 +43,12 @@ const App = () => {
   return (
     <main>
       <h1>Promo Manager</h1>
-      {options && (
-        <AddPromoBtn
-          promoStatus={addPromoStatus}
-          setAddPromoStatus={setAddPromoStatus}
-          onPromoSave={fetchPromotions}
-          options={options}
-        />
-      )}
+      <AddPromoBtn
+        promoStatus={addPromoStatus}
+        setAddPromoStatus={setAddPromoStatus}
+        onPromoSave={fetchPromotions}
+        options={options}
+      />
       <PromoTable
         promotions={promotions}
         onSave={fetchPromotions}

@@ -16,7 +16,7 @@ const PromoRow = ({ promo, onDelete }) => (
         <td>{promo.endTime.slice(0, 10)}</td>
         <td>{promo.tactic.type}</td>
         <td>
-            <button>Edit</button>
+            <button onClick={() => console.log(promo)}>Edit</button>
             <button onClick={() => onDelete(promo.promoId)}>Delete</button>
         </td>
     </tr>
@@ -33,8 +33,13 @@ export const PromoTable = ({ promotions, onSave, sortBy, sortOrder, setSortBy, s
     };
 
     const handleDeletePromo = async (promoId) => {
+
         try {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL;
+            console.log(baseUrl, "=========> Inside PromoTable");
+
             const res = await fetch(`/api/promotion/${promoId}`, { method: "DELETE" });
+
             if (!res.ok) throw new Error("Delete failed");
             onSave();
         } catch (err) {

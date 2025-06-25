@@ -9,8 +9,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPromoRepository, PromoRepository>();
 builder.Services.AddScoped<IPromoService, PromoService>();
 builder.Services.AddCors(options =>
-    options.AddPolicy("AllowSpecificOrigin",
-        corsPolicyBuilder => corsPolicyBuilder.WithOrigins("http://localhost:5173") 
+    options.AddPolicy("AllowAnyOrigin", // Give your policy a meaningful name
+        corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin() // This is the key change
             .AllowAnyHeader()
             .AllowAnyMethod()));
 
@@ -76,7 +76,7 @@ try
     {
         @"INSERT OR IGNORE INTO Stores (StoreName) VALUES 
             ('Store1'), ('Store2'), ('Store3'), ('Store4'), ('Store5');",
- 
+
         @"INSERT OR IGNORE INTO Items (ItemName) VALUES 
             ('Pen'), ('Pencil'), ('Notebook'), 
             ('Chips'), ('Chocolate'), ('Ice cream');",
@@ -109,6 +109,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
