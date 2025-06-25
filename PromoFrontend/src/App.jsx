@@ -16,7 +16,7 @@ const App = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     try {
-      console.log(baseUrl, "================> Inside App ");
+      console.log(baseUrl, "================> Inside App for sorting");
       const response = await fetch(`${baseUrl}/api/promotion?sortBy=${field}&sortOrder=${order}`);
       const data = await response.json();
       setPromotions(data);
@@ -31,6 +31,9 @@ const App = () => {
 
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+    console.log(baseUrl, "Here inside fetch options===============>");
+
 
     fetch(`${baseUrl}/api/lookup/availableOptions`)
       .then((res) => res.json())
