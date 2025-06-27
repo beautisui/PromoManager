@@ -9,8 +9,7 @@ const App = () => {
   const [options, setOptions] = useState(null);
   const [sortBy, setSortBy] = useState("promoId");
   const [sortOrder, setSortOrder] = useState("desc");
-
-  console.log(promotions);
+  const [filterBy, setFilter] = useState(null);
 
   const fetchPromotions = async (field = sortBy, order = sortOrder) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -32,15 +31,11 @@ const App = () => {
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-    console.log(baseUrl, "Here inside fetch options===============>");
-
-
     fetch(`${baseUrl}/api/lookup/availableOptions`)
       .then((res) => res.json())
       .then((data) => setOptions(data))
       .catch((err) => console.error("Failed to fetch options", err));
   }, []);
-
 
 
   return (
@@ -59,6 +54,8 @@ const App = () => {
         sortOrder={sortOrder}
         setSortBy={setSortBy}
         setSortOrder={setSortOrder}
+        onFilter={filterBy}
+        setFilterColumn={setFilter}
       />
     </main>
   );

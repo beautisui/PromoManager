@@ -14,8 +14,6 @@ const addPromoPopup = (handleSavePromotion, closeCreatePromoPopup, options) => {
 };
 
 export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, options }) => {
-
-    console.log(options, "+++++++++++++++++")
     const openCreatePromoPopup = () => setAddPromoStatus(true);
     const closeCreatePromoPopup = () => setAddPromoStatus(false);
     const handleSavePromotion = async (promoData) => {

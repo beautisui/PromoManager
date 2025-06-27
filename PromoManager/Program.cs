@@ -9,8 +9,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPromoRepository, PromoRepository>();
 builder.Services.AddScoped<IPromoService, PromoService>();
 builder.Services.AddCors(options =>
-    options.AddPolicy("AllowAnyOrigin", // Give your policy a meaningful name
-        corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin() // This is the key change
+    options.AddPolicy("AllowAnyOrigin",
+        corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()));
 
@@ -114,6 +114,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapControllers();
 
 app.Run();
