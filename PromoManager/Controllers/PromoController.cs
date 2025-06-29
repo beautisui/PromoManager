@@ -51,5 +51,15 @@ namespace PromoManager.Controllers
             }
         }
         
+        
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterPromotions([FromQuery] string field, [FromQuery] string values)
+        {
+            var valueList = values.Split(',').ToList();
+            var filteredPromos = await _service.FilterPromotions(field, valueList);
+            return Ok(filteredPromos);
+        }
+
+        
     }
 }

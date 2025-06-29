@@ -1,4 +1,6 @@
 import './css/PromoTable.css';
+import { useState } from 'react';
+import FilterDropdown from './FilterDropdown';
 
 const separateByComma = (arr, key = 'name') =>
     arr
@@ -7,44 +9,25 @@ const separateByComma = (arr, key = 'name') =>
         .map(obj => obj[key])
         .join(', ');
 
-const PromoRow = ({ promo, onDelete }) => {
-    return (
-        <tr>
-            <td>{promo.promoId}</td>
-            <td>{separateByComma(promo.items)}</td>
-            <td>{separateByComma(promo.stores)}</td>
-            <td>{promo.startTime.slice(0, 10)}</td>
-            <td>{promo.endTime.slice(0, 10)}</td>
-            <td>{promo.tactic.type}</td>
-            <td>
-                <button>Edit</button>
-                <button onClick={() => onDelete(promo.promoId)}>Delete</button>
-            </td>
-        </tr>
-    );
-};
+const PromoRow = ({ promo, onDelete }) => (
+    <tr>
+        <td>{promo.promoId}</td>
+        <td>{separateByComma(promo.items)}</td>
+        <td>{separateByComma(promo.stores)}</td>
+        <td>{promo.startTime.slice(0, 10)}</td>
+        <td>{promo.endTime.slice(0, 10)}</td>
+        <td>{promo.tactic.type}</td>
+        <td>
+            <button>Edit</button>
+            <button onClick={() => onDelete(promo.promoId)}>Delete</button>
+        </td>
+    </tr>
+);
 
-const createHeader = ({ columnName, field, onSort, renderSortIndicator, onFilter }) => {
-
-    console.log(field, '==========================> ');
-
-    return (
-        <>
-            <span onClick={() => onSort(field)}>
-                {columnName}{renderSortIndicator(field)}
-            </span>
-
-            <span onClick={(e) => {
-                e.stopPropagation();
-                onFilter(field);
-            }}>☰
-            </span>
-        </>
-    );
-};
-
-
-export const PromoTable = ({ promotions, onSave, sortBy, sortOrder, setSortBy, setSortOrder, onFilter, setFilterColumn }) => {
+export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrder, setSortBy, setSortOrder }) => {
+    const [activeFilterColumn, setActiveFilterColumn] = useState(null);
+    const [filterOptions, setFilterOptions] = useState([]);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
     const handleSorting = (field) => {
         if (sortBy === field) {
@@ -56,11 +39,9 @@ export const PromoTable = ({ promotions, onSave, sortBy, sortOrder, setSortBy, s
     };
 
     const handleDeletePromo = async (promoId) => {
-
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const res = await fetch(`${baseUrl}/api/promotion/${promoId}`, { method: "DELETE" });
-
             if (!res.ok) throw new Error("Delete failed");
             onSave();
         } catch (err) {
@@ -68,71 +49,104 @@ export const PromoTable = ({ promotions, onSave, sortBy, sortOrder, setSortBy, s
         }
     };
 
-    const editPromo = async (promo) => {
-        try {
-            console.log("Edited Promo is ===>", promo);
-            const baseUrl = import.meta.env.VITE_API_BASE_URL;
-            const response = await fetch(`${baseUrl}/api/promotion`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(promo)
-            })
-
-            if (!response.ok) throw new Error("Edit Failed");
-            onSave();
-        } catch (error) {
-            console.error("Edit error:", error)
+    const extractFilterOptions = (field) => {
+        switch (field) {
+            case 'promoId':
+                return Array.from(new Set(promotions.map(p => p.promoId.toString())));
+            case 'items':
+                return Array.from(new Set(promotions.flatMap(p => p.items.map(i => i.name))));
+            case 'stores':
+                return Array.from(new Set(promotions.flatMap(p => p.stores.map(s => s.name))));
+            case 'tactic':
+                return Array.from(new Set(promotions.map(p => p.tactic.type)));
+            default:
+                return [];
         }
-    }
+    };
+
+
+    const handleFilterClick = (field, e) => {
+        const options = extractFilterOptions(field);
+        const rect = e.target.getBoundingClientRect();
+        setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+        setFilterOptions(options);
+        setActiveFilterColumn(field);
+    };
+
+    const handleApplyFilter = async (field, selectedOptions) => {
+        console.log("Final selected filters for", field, "=>", selectedOptions);
+
+        try {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL;
+            const queryParams = selectedOptions.map(encodeURIComponent).join(',');
+            const url = `${baseUrl}/api/promotion/filter?field=${field}&values=${queryParams}`;
+            const response = await fetch(url);
+
+            if (!response.ok) throw new Error(`Failed during applying filter on ${field}`);
+
+            const data = await response.json();
+            setPromotions(data);
+            console.log("Filtered promotions data ==============================================>", data)
+
+                ;
+        } catch (error) {
+            console.error("Error applying filter:", error);
+        }
+    };
 
     const renderSortIndicator = (field) => {
         if (sortBy !== field) return '';
         return sortOrder === 'asc' ? ' 🔼 ' : ' 🔽 ';
     };
 
-    const handleFilter = (field) => {
-        setFilterColumn(field);
-        console.log("Inside handle filte", onFilter);
-    }
-
     return (
-        <table className="promo-table">
-            <thead>
-                <tr>
-                    <th>
-                        {createHeader({
-                            columnName: "Promo ID",
-                            field: "promoId",
-                            onSort: handleSorting,
-                            renderSortIndicator: renderSortIndicator,
-                            onFilter: handleFilter
-                        })}
-                    </th>
+        <>
+            <table className="promo-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <span onClick={() => handleSorting("promoId")}>Promo ID{renderSortIndicator("promoId")}</span>
+                            <span onClick={(e) => handleFilterClick("promoId", e)}>☰</span>
+                        </th>
+                        <th>
+                            <span onClick={() => handleSorting("items")}>Items{renderSortIndicator("items")}</span>
+                            <span onClick={(e) => handleFilterClick("items", e)}>☰</span>
+                        </th>
+                        <th>
+                            <span onClick={() => handleSorting("stores")}>Stores{renderSortIndicator("stores")}</span>
+                            <span onClick={(e) => handleFilterClick("stores", e)}>☰</span>
+                        </th>
+                        <th>
+                            <span onClick={() => handleSorting("startTime")}>Start Date{renderSortIndicator("startTime")}</span>
+                            <span onClick={(e) => handleFilterClick("startTime", e)}>☰</span>
+                        </th>
+                        <th>
+                            <span onClick={() => handleSorting("endTime")}>End Date{renderSortIndicator("endTime")}</span>
+                            <span onClick={(e) => handleFilterClick("endTime", e)}>☰</span>
+                        </th>
+                        <th>
+                            <span onClick={() => handleSorting("tactic")}>Tactic{renderSortIndicator("tactic")}</span>
+                            <span onClick={(e) => handleFilterClick("tactic", e)}>☰</span>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {promotions.map(promo => (
+                        <PromoRow key={promo.promoId} promo={promo} onDelete={() => handleDeletePromo(promo.promoId)} />
+                    ))}
+                </tbody>
+            </table>
 
-                    <th>
-                        {createHeader({
-                            columnName: "items",
-                            field: "items",
-                            onSort: handleSorting,
-                            renderSortIndicator: renderSortIndicator,
-                            onFilter: handleFilter
-                        })}
-                    </th>
-
-                    <th onClick={() => handleSorting("stores")}>Stores{renderSortIndicator("stores")}</th>
-                    <th onClick={() => handleSorting("startTime")}>Start Date{renderSortIndicator("startTime")}</th>
-                    <th onClick={() => handleSorting("endTime")}>End Date{renderSortIndicator("endTime")}</th>
-                    <th onClick={() => handleSorting("tactic")}>Tactic{renderSortIndicator("tactic")}</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {promotions.map(promo => (
-                    <PromoRow key={promo.promoId} promo={promo} onDelete={() => handleDeletePromo(promo.promoId)} />
-                ))}
-            </tbody>
-        </table>
+            {activeFilterColumn && (
+                <FilterDropdown
+                    field={activeFilterColumn}
+                    options={filterOptions}
+                    onApply={handleApplyFilter}
+                    onClose={() => setActiveFilterColumn(null)}
+                    position={dropdownPosition}
+                />
+            )}
+        </>
     );
 };

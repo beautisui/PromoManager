@@ -1,0 +1,32 @@
+.filter-dropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filter-dropdown h4 {
+  margin-top: 0;
+}
+
+.filter-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.filter-dropdown li {
+  margin: 4px 0;
+}
+
+.dropdown-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 10px;
+}

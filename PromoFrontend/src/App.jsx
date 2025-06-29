@@ -9,14 +9,13 @@ const App = () => {
   const [options, setOptions] = useState(null);
   const [sortBy, setSortBy] = useState("promoId");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [filterBy, setFilter] = useState(null);
 
   const fetchPromotions = async (field = sortBy, order = sortOrder) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     try {
-      console.log(baseUrl, "================> Inside App for sorting");
       const response = await fetch(`${baseUrl}/api/promotion?sortBy=${field}&sortOrder=${order}`);
+
       const data = await response.json();
       setPromotions(data);
     } catch (error) {
@@ -37,7 +36,6 @@ const App = () => {
       .catch((err) => console.error("Failed to fetch options", err));
   }, []);
 
-
   return (
     <main>
       <h1>Promo Manager</h1>
@@ -49,13 +47,12 @@ const App = () => {
       />
       <PromoTable
         promotions={promotions}
+        setPromotions={setPromotions}
         onSave={fetchPromotions}
         sortBy={sortBy}
         sortOrder={sortOrder}
         setSortBy={setSortBy}
         setSortOrder={setSortOrder}
-        onFilter={filterBy}
-        setFilterColumn={setFilter}
       />
     </main>
   );

@@ -46,3 +46,9 @@ button {
     border-radius: 6px;
     cursor: pointer;
 }
+
+.field-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 2px;
+}

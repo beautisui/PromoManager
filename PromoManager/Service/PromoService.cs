@@ -36,5 +36,13 @@ namespace PromoManager.Service
         {
             return _repository.DeletePromotion(promoId);
         }
+        
+        public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values)
+        {
+            return await _repository.FilterPromotions(field, values);
+        }
+
+        
+        
     }
 }
