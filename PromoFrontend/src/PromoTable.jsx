@@ -49,31 +49,42 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
         }
     };
 
-    const extractFilterOptions = (field) => {
-        switch (field) {
-            case 'promoId':
-                return Array.from(new Set(promotions.map(p => p.promoId.toString())));
-            case 'items':
-                return Array.from(new Set(promotions.flatMap(p => p.items.map(i => i.name))));
-            case 'stores':
-                return Array.from(new Set(promotions.flatMap(p => p.stores.map(s => s.name))));
-            case 'tactic':
-                return Array.from(new Set(promotions.map(p => p.tactic.type)));
-            default:
-                return [];
+    const extractFilterOptions = async (field) => {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        try {
+            const response = await fetch(`${baseUrl}/api/promotion?sortBy=${field}&sortOrder=${"desc"}`);
+            const options = await response.json();
+
+            switch (field) {
+                case 'promoId':
+                    return Array.from(new Set(options.map(p => p.promoId.toString())));
+                case 'items':
+                    return Array.from(new Set(options.flatMap(p => p.items.map(i => i.name))));
+                case 'stores':
+                    return Array.from(new Set(options.flatMap(p => p.stores.map(s => s.name))));
+                case 'tactic':
+                    return Array.from(new Set(options.map(p => p.tactic.type)));
+                default:
+                    return [];
+            }
+        } catch (error) {
+            console.error("Error found in extractFilterOptions", error);
         }
     };
 
 
-    const handleFilterClick = (field, e) => {
-        const options = extractFilterOptions(field);
+    const handleFilterClick = async (field, e) => {
+        const options = await extractFilterOptions(field);
         const rect = e.target.getBoundingClientRect();
+
         setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
         setFilterOptions(options);
         setActiveFilterColumn(field);
     };
 
     const handleApplyFilter = async (field, selectedOptions) => {
+        console.log("Final selected filters for", field, "=>", selectedOptions);
+
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const queryParams = selectedOptions.map(encodeURIComponent).join(',');
