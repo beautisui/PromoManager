@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import './css/FilterDropdown.css';
+import DateInput from './DateInput';
 
 const FilterDropdown = ({ field, options, onApply, onClose, position }) => {
     const [selectedOptions, setSelectedOptions] = useState([]);
     const dropdownRef = useRef(null);
-
 
     console.log(selectedOptions, "selectedOptions in FilterDropdown");
 
@@ -43,24 +43,18 @@ const FilterDropdown = ({ field, options, onApply, onClose, position }) => {
             <h4>Filter {field}</h4>
             {field === 'startTime' || field === 'endTime' ? (
                 <div>
-                    <label>
-                        From:
-                        <input
-                            type="date"
-                            onChange={(e) =>
-                                setSelectedOptions([e.target.value, selectedOptions[1] || ""])
-                            }
-                        />
-                    </label>
-                    <label>
-                        To:
-                        <input
-                            type="date"
-                            onChange={(e) =>
-                                setSelectedOptions([selectedOptions[0] || "", e.target.value])
-                            }
-                        />
-                    </label>
+                    <DateInput
+                        label="From"
+                        value={selectedOptions[0] || ''}
+                        onChange={val => setSelectedOptions([val, selectedOptions[1] || ''])}
+                        max={selectedOptions[1]}
+                    />
+                    <DateInput
+                        label="To"
+                        value={selectedOptions[1] || ''}
+                        onChange={val => setSelectedOptions([selectedOptions[0] || '', val])}
+                        min={selectedOptions[0]}
+                    />
                 </div>
             ) : (
                 <ul>

@@ -74,8 +74,6 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
     };
 
     const handleApplyFilter = async (field, selectedOptions) => {
-        console.log("Final selected filters for", field, "=>", selectedOptions);
-
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const queryParams = selectedOptions.map(encodeURIComponent).join(',');
@@ -86,9 +84,6 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
 
             const data = await response.json();
             setPromotions(data);
-            console.log("Filtered promotions data ==============================================>", data)
-
-                ;
         } catch (error) {
             console.error("Error applying filter:", error);
         }

@@ -85,7 +85,7 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
 
             <div className="btn-group">
                 <button onClick={onCancel}>Cancel</button>
-                <button onClick={handleSubmit}>Save Promotion</button>
+                <button onClick={handleSubmit}>Create</button>
             </div>
         </div>
     );

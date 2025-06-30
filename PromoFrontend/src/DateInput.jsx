@@ -6,6 +6,7 @@ const DateInput = ({ label, value, onChange, min }) => (
             value={value}
             onChange={e => onChange(e.target.value)}
             min={min}
+            required
         />
     </div>
 );
