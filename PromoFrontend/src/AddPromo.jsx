@@ -50,7 +50,6 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
                 items={items}
                 selectedItems={selectedItems}
                 setSelectedItems={setSelectedItems}
-                error={missing.items}
             />
             {missing.items && <div className="field-error">Please select at least one item.</div>}
 
@@ -58,7 +57,6 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
                 stores={stores}
                 selectedStores={selectedStores}
                 setSelectedStores={setSelectedStores}
-                error={missing.stores}
             />
             {missing.stores && <div className="field-error">Please select at least one store.</div>}
 
@@ -66,7 +64,6 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
                 tactics={tactics}
                 selectedTactic={selectedTactic}
                 setSelectedTactic={setSelectedTactic}
-                error={missing.tactic}
             />
             {missing.tactic && <div className="field-error">Please select a tactic.</div>}
 
@@ -75,7 +72,6 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
                 value={startDate}
                 onChange={setStartDate}
                 min={today}
-                error={missing.startDate}
             />
             {missing.startDate && <div className="field-error">Please select a start date.</div>}
 
@@ -84,7 +80,6 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
                 value={endDate}
                 onChange={setEndDate}
                 min={startDate}
-                error={missing.endDate}
             />
             {missing.endDate && <div className="field-error">Please select an end date.</div>}
 

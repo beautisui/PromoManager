@@ -182,27 +182,41 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
     {
         using var connection = CreateConnection();
 
+        Console.WriteLine($"Requested filtered data ====> {field} And those are the values====>{string.Join(", ", values)}");
+
         string query = field.ToLower() switch
         {
             "promoid" => "SELECT * FROM Promotions WHERE PromoId IN @Values",
             "items" => @"SELECT DISTINCT p.*
-                     FROM Promotions p
-                     JOIN PromoItems pi ON p.PromoId = pi.PromoId
-                     JOIN Items i ON pi.ItemId = i.ItemId
-                     WHERE i.ItemName IN @Values",
+                 FROM Promotions p
+                 JOIN PromoItems pi ON p.PromoId = pi.PromoId
+                 JOIN Items i ON pi.ItemId = i.ItemId
+                 WHERE i.ItemName IN @Values",
             "stores" => @"SELECT DISTINCT p.*
-                      FROM Promotions p
-                      JOIN PromoStores ps ON p.PromoId = ps.PromoId
-                      JOIN Stores s ON ps.StoreId = s.StoreId
-                      WHERE s.StoreName IN @Values",
+                  FROM Promotions p
+                  JOIN PromoStores ps ON p.PromoId = ps.PromoId
+                  JOIN Stores s ON ps.StoreId = s.StoreId
+                  WHERE s.StoreName IN @Values",
             "tactic" => @"SELECT p.*
-                      FROM Promotions p
-                      JOIN Tactics t ON p.TacticId = t.TacticId
-                      WHERE t.TacticType IN @Values",
-            _ => throw new ArgumentException("Invalid filter field")
+                  FROM Promotions p
+                  JOIN Tactics t ON p.TacticId = t.TacticId
+                  WHERE t.TacticType IN @Values",
+            "starttime" => @"SELECT * FROM Promotions WHERE StartDate BETWEEN @Start AND @End",
+            "endtime" => @"SELECT * FROM Promotions WHERE EndDate BETWEEN @Start AND @End",
+            _ => throw new ArgumentException($"Invalid filter field {field}")
         };
 
-        var promos = (await connection.QueryAsync<Promotion>(query, new { Values = values })).ToList();
+        List<Promotion> promos;
+        if (field.ToLower() == "starttime" || field.ToLower() == "endtime")
+        {
+            promos = (await connection.QueryAsync<Promotion>(query, new { Start = values[0], End = values[1] })).ToList();
+        }
+        else
+        {
+            promos = (await connection.QueryAsync<Promotion>(query, new { Values = values })).ToList();
+        }
+
+        Console.WriteLine($"=================================>{string.Join(", ", promos.Select(p => p.PromoId))}");
 
         if (!promos.Any())
             return new List<PromotionResponse>();

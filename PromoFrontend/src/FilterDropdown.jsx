@@ -6,6 +6,9 @@ const FilterDropdown = ({ field, options, onApply, onClose, position }) => {
     const dropdownRef = useRef(null);
 
 
+    console.log(selectedOptions, "selectedOptions in FilterDropdown");
+
+
     const handleOptionChange = (option) => {
         setSelectedOptions(prev =>
             prev.includes(option)
@@ -22,14 +25,11 @@ const FilterDropdown = ({ field, options, onApply, onClose, position }) => {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            console.log("dropdownRef.current", dropdownRef.current);
-            console.log("dropdownRef.current.contains(e.target)", dropdownRef.current.contains(e.target));
-
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 onClose();
             }
         };
-        
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [onClose]);

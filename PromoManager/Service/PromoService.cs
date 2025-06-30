@@ -23,7 +23,7 @@ namespace PromoManager.Service
 
             if (dto.EndDate.Date < dto.StartDate.Date)
                 throw new ArgumentException("End date must be the same or after the start date.");
-            
+
             return await _repository.AddPromotion(dto);
         }
 
@@ -36,13 +36,13 @@ namespace PromoManager.Service
         {
             return _repository.DeletePromotion(promoId);
         }
-        
+
         public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values)
         {
             return await _repository.FilterPromotions(field, values);
         }
 
-        
-        
+
+
     }
 }
