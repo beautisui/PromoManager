@@ -2,6 +2,12 @@ import './css/PromoTable.css';
 import { useState } from 'react';
 import FilterDropdown from './FilterDropdown';
 
+const FilterIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M3 4h18l-7 10v5l-4 2v-7L3 4z" />
+    </svg>
+);
+
 const separateByComma = (arr, key = 'name') =>
     arr
         .slice()
@@ -75,7 +81,7 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
             return [];
         }
     };
-    
+
     const handleFilterClick = async (field, e) => {
         const options = await extractFilterOptions(field);
         const rect = e.target.getBoundingClientRect();
@@ -114,31 +120,62 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
                 <thead>
                     <tr>
                         <th>
-                            <span onClick={() => handleSorting("promoId")}>Promo ID{renderSortIndicator("promoId")}</span>
-                            <span onClick={(e) => handleFilterClick("promoId", e)}>☰</span>
+                            <span onClick={() => handleSorting("promoId")}>
+                                Promo ID{renderSortIndicator("promoId")}
+                            </span>
+                            <span onClick={(e) => handleFilterClick("promoId", e)}>
+                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
+                            </span>
                         </th>
+
                         <th>
-                            <span onClick={() => handleSorting("items")}>Items{renderSortIndicator("items")}</span>
-                            <span onClick={(e) => handleFilterClick("items", e)}>☰</span>
+                            <span onClick={() => handleSorting("items")}>
+                                Items{renderSortIndicator("items")}
+                            </span>
+                            <span onClick={(e) => handleFilterClick("items", e)}>
+                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
+                            </span>
                         </th>
+
                         <th>
-                            <span onClick={() => handleSorting("stores")}>Stores{renderSortIndicator("stores")}</span>
-                            <span onClick={(e) => handleFilterClick("stores", e)}>☰</span>
+                            <span onClick={() => handleSorting("stores")}>
+                                Stores{renderSortIndicator("stores")}
+                            </span>
+                            <span onClick={(e) => handleFilterClick("stores", e)}>
+                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
+                            </span>
                         </th>
+
                         <th>
-                            <span onClick={() => handleSorting("startTime")}>Start Date{renderSortIndicator("startTime")}</span>
-                            <span onClick={(e) => handleFilterClick("startTime", e)}>☰</span>
+                            <span onClick={() => handleSorting("startTime")}>
+                                Start Date{renderSortIndicator("startTime")}
+                            </span>
+                            <span onClick={(e) => handleFilterClick("startTime", e)}>
+                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
+                            </span>
                         </th>
+
                         <th>
-                            <span onClick={() => handleSorting("endTime")}>End Date{renderSortIndicator("endTime")}</span>
-                            <span onClick={(e) => handleFilterClick("endTime", e)}>☰</span>
+                            <span onClick={() => handleSorting("endTime")}>
+                                End Date{renderSortIndicator("endTime")}
+                            </span>
+                            <span onClick={(e) => handleFilterClick("endTime", e)}>
+                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
+                            </span>
                         </th>
+
                         <th>
-                            <span onClick={() => handleSorting("tactic")}>Tactic{renderSortIndicator("tactic")}</span>
-                            <span onClick={(e) => handleFilterClick("tactic", e)}>☰</span>
+                            <span onClick={() => handleSorting("tactic")}>
+                                Tactic{renderSortIndicator("tactic")}
+                            </span>
+                            <span onClick={(e) => handleFilterClick("tactic", e)}>
+                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
+                            </span>
                         </th>
+
                         <th>Actions</th>
                     </tr>
+
                 </thead>
                 <tbody>
                     {promotions.map(promo => (
