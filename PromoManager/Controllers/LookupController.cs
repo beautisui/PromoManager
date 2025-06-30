@@ -38,24 +38,33 @@ public class LookupController : ControllerBase
         var rows = await db.QueryAsync("SELECT TacticId, TacticType FROM Tactics;");
         return Ok(rows);
     }
-    
+
     [HttpGet("availableOptions")]
-public async Task<IActionResult> GetAvailableOptions()
-{
-    using var db = new SqliteConnection(_cnx);
-    Console.WriteLine("Inside GetAvailableOptions");
-
-    var items = await db.QueryAsync("SELECT ItemId AS Id, ItemName AS Name FROM Items;");
-    var stores = await db.QueryAsync("SELECT StoreId AS Id, StoreName AS Name FROM Stores;");
-    var tactics = await db.QueryAsync("SELECT TacticId AS Id, TacticType AS Type FROM Tactics;");
-
-    var result = new
+    public async Task<IActionResult> GetAvailableOptions()
     {
-        items,
-        stores,
-        tactics
-    };
+        using var db = new SqliteConnection(_cnx);
+        Console.WriteLine("Inside GetAvailableOptions");
 
-    return Ok(result);
-}
+        var items = await db.QueryAsync("SELECT ItemId AS Id, ItemName AS Name FROM Items;");
+        var stores = await db.QueryAsync("SELECT StoreId AS Id, StoreName AS Name FROM Stores;");
+        var tactics = await db.QueryAsync("SELECT TacticId AS Id, TacticType AS Type FROM Tactics;");
+
+        var result = new
+        {
+            items,
+            stores,
+            tactics
+        };
+
+        return Ok(result);
+    }
+
+    [HttpGet("promoIds")]
+    public async Task<IActionResult> GetPromoIds()
+    {
+        using var db = new SqliteConnection(_cnx);
+        var promoIds = await db.QueryAsync<long>("SELECT PromoId FROM Promotions;");
+        return Ok(promoIds);
+    }
+
 }

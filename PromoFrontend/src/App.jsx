@@ -25,7 +25,7 @@ const App = () => {
 
   useEffect(() => {
     fetchPromotions();
-  }, [sortBy, sortOrder]);
+  }, [sortBy, sortOrder]); 6
 
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -36,6 +36,7 @@ const App = () => {
       .catch((err) => console.error("Failed to fetch options", err));
   }, []);
 
+  
   return (
     <main>
       <h1>Promo Manager</h1>
@@ -53,6 +54,7 @@ const App = () => {
         sortOrder={sortOrder}
         setSortBy={setSortBy}
         setSortOrder={setSortOrder}
+
       />
     </main>
   );

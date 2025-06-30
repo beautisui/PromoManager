@@ -52,27 +52,30 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
     const extractFilterOptions = async (field) => {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
         try {
-            const response = await fetch(`${baseUrl}/api/promotion?sortBy=${field}&sortOrder=${"desc"}`);
-            const options = await response.json();
+            const response = await fetch(`${baseUrl}/api/lookup/availableOptions`);
+            if (!response.ok) throw new Error("Failed to fetch filter options");
+            const data = await response.json();
 
             switch (field) {
                 case 'promoId':
-                    return Array.from(new Set(options.map(p => p.promoId.toString())));
+                    const promoIdResponse = await fetch(`${baseUrl}/api/lookup/promoIds`);
+                    const promoIds = await promoIdResponse.json();
+                    return promoIds.map(id => id.toString());
                 case 'items':
-                    return Array.from(new Set(options.flatMap(p => p.items.map(i => i.name))));
+                    return data.items.map(i => i.Name);
                 case 'stores':
-                    return Array.from(new Set(options.flatMap(p => p.stores.map(s => s.name))));
+                    return data.stores.map(s => s.Name);
                 case 'tactic':
-                    return Array.from(new Set(options.map(p => p.tactic.type)));
+                    return data.tactics.map(t => t.Type);
                 default:
                     return [];
             }
         } catch (error) {
-            console.error("Error found in extractFilterOptions", error);
+            console.error("Error fetching filter options:", error);
+            return [];
         }
     };
-
-
+    
     const handleFilterClick = async (field, e) => {
         const options = await extractFilterOptions(field);
         const rect = e.target.getBoundingClientRect();
