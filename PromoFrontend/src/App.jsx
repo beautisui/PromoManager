@@ -25,7 +25,7 @@ const App = () => {
 
   useEffect(() => {
     fetchPromotions();
-  }, [sortBy, sortOrder]); 6
+  }, []);
 
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;

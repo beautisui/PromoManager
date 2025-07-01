@@ -2,8 +2,15 @@ import './css/PromoTable.css';
 import { useState } from 'react';
 import FilterDropdown from './FilterDropdown';
 
-const FilterIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="currentColor" viewBox="0 0 24 24">
+const FilterIcon = ({ className = "" }) => (
+    <svg
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        height="24"
+        width="24"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+    >
         <path d="M3 4h18l-7 10v5l-4 2v-7L3 4z" />
     </svg>
 );
@@ -30,18 +37,48 @@ const PromoRow = ({ promo, onDelete }) => (
     </tr>
 );
 
-export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrder, setSortBy, setSortOrder }) => {
+export const PromoTable = ({
+    promotions,
+    setPromotions,
+    onSave,
+    sortBy,
+    sortOrder,
+    setSortBy,
+    setSortOrder
+}) => {
     const [activeFilterColumn, setActiveFilterColumn] = useState(null);
     const [filterOptions, setFilterOptions] = useState([]);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+    const [activeFilterField, setActiveFilterField] = useState(null);
+    const [selectedOptions, setSelectedOptions] = useState([]);
 
-    const handleSorting = (field) => {
-        if (sortBy === field) {
-            setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
+    const handleSorting = async (field) => {
+        const newSortOrder = (sortBy === field && sortOrder === "desc") ? "asc" : "desc";
+        setSortBy(field);
+        setSortOrder(newSortOrder);
+
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+        if (!activeFilterField) {
+            onSave(field, newSortOrder);
             return;
         }
-        setSortBy(field);
-        setSortOrder("desc");
+
+        try {
+            const queryParams = selectedOptions.map(encodeURIComponent).join(',');
+
+            const url = `${baseUrl}/api/promotion/filter?field=${activeFilterField}&values=${queryParams}&sortBy=${field}&sortOrder=${newSortOrder}`;
+
+            const response = await fetch(url);
+            console.log('Response status -> ', response.ok);
+
+            if (!response.ok) throw new Error(`Failed to sort on ${field}`);
+
+            const data = await response.json();
+            setPromotions(data);
+        } catch (error) {
+            console.error("Error in filtered sorting:", error);
+        }
     };
 
     const handleDeletePromo = async (promoId) => {
@@ -49,7 +86,7 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const res = await fetch(`${baseUrl}/api/promotion/${promoId}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Delete failed");
-            onSave();
+            onSave(); // refresh table after deletion
         } catch (err) {
             console.error("Delete error:", err);
         }
@@ -60,7 +97,7 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
         try {
             const response = await fetch(`${baseUrl}/api/lookup/availableOptions`);
             if (!response.ok) throw new Error("Failed to fetch filter options");
-            const data = await response.json();
+            const options = await response.json();
 
             switch (field) {
                 case 'promoId':
@@ -68,11 +105,11 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
                     const promoIds = await promoIdResponse.json();
                     return promoIds.map(id => id.toString());
                 case 'items':
-                    return data.items.map(i => i.Name);
+                    return options.items.map(i => i.Name);
                 case 'stores':
-                    return data.stores.map(s => s.Name);
+                    return options.stores.map(s => s.Name);
                 case 'tactic':
-                    return data.tactics.map(t => t.Type);
+                    return options.tactics.map(t => t.Type);
                 default:
                     return [];
             }
@@ -91,12 +128,11 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
         setActiveFilterColumn(field);
     };
 
-    const handleApplyFilter = async (field, selectedOptions) => {
-        console.log("Final selected filters for", field, "=>", selectedOptions);
-
+    const handleApplyFilter = async (field, optionsSelected) => {
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
-            const queryParams = selectedOptions.map(encodeURIComponent).join(',');
+            const queryParams = optionsSelected.map(encodeURIComponent).join(',');
+
             const url = `${baseUrl}/api/promotion/filter?field=${field}&values=${queryParams}`;
             const response = await fetch(url);
 
@@ -104,6 +140,8 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
 
             const data = await response.json();
             setPromotions(data);
+            setActiveFilterField(field);
+            setSelectedOptions(optionsSelected);
         } catch (error) {
             console.error("Error applying filter:", error);
         }
@@ -116,67 +154,30 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
 
     return (
         <>
+            {activeFilterField && (
+                <div className="active-filter-info">
+                    Filtering based on: <strong>{activeFilterField}</strong>
+                </div>
+            )}
+
             <table className="promo-table">
                 <thead>
                     <tr>
-                        <th>
-                            <span onClick={() => handleSorting("promoId")}>
-                                Promo ID{renderSortIndicator("promoId")}
-                            </span>
-                            <span onClick={(e) => handleFilterClick("promoId", e)}>
-                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
-                            </span>
-                        </th>
-
-                        <th>
-                            <span onClick={() => handleSorting("items")}>
-                                Items{renderSortIndicator("items")}
-                            </span>
-                            <span onClick={(e) => handleFilterClick("items", e)}>
-                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
-                            </span>
-                        </th>
-
-                        <th>
-                            <span onClick={() => handleSorting("stores")}>
-                                Stores{renderSortIndicator("stores")}
-                            </span>
-                            <span onClick={(e) => handleFilterClick("stores", e)}>
-                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
-                            </span>
-                        </th>
-
-                        <th>
-                            <span onClick={() => handleSorting("startTime")}>
-                                Start Date{renderSortIndicator("startTime")}
-                            </span>
-                            <span onClick={(e) => handleFilterClick("startTime", e)}>
-                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
-                            </span>
-                        </th>
-
-                        <th>
-                            <span onClick={() => handleSorting("endTime")}>
-                                End Date{renderSortIndicator("endTime")}
-                            </span>
-                            <span onClick={(e) => handleFilterClick("endTime", e)}>
-                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
-                            </span>
-                        </th>
-
-                        <th>
-                            <span onClick={() => handleSorting("tactic")}>
-                                Tactic{renderSortIndicator("tactic")}
-                            </span>
-                            <span onClick={(e) => handleFilterClick("tactic", e)}>
-                                <FilterIcon className="inline w-4 h-4 ml-1 text-gray-600 hover:text-blue-500 cursor-pointer" />
-                            </span>
-                        </th>
-
+                        {["promoId", "items", "stores", "startTime", "endTime", "tactic"].map(field => (
+                            <th key={field}>
+                                <span onClick={() => handleSorting(field)}>
+                                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                                    {renderSortIndicator(field)}
+                                </span>
+                                <span onClick={(e) => handleFilterClick(field, e)}>
+                                    <FilterIcon className="my-filter-icon" />
+                                </span>
+                            </th>
+                        ))}
                         <th>Actions</th>
                     </tr>
-
                 </thead>
+
                 <tbody>
                     {promotions.map(promo => (
                         <PromoRow key={promo.promoId} promo={promo} onDelete={() => handleDeletePromo(promo.promoId)} />
@@ -189,8 +190,10 @@ export const PromoTable = ({ promotions, setPromotions, onSave, sortBy, sortOrde
                     field={activeFilterColumn}
                     options={filterOptions}
                     onApply={handleApplyFilter}
-                    onClose={() => setActiveFilterColumn(null)}
+                    onClose={() => { setActiveFilterColumn(null); setSelectedOptions([]); }}
                     position={dropdownPosition}
+                    selectedOptions={selectedOptions}
+                    setSelectedOptions={setSelectedOptions}
                 />
             )}
         </>

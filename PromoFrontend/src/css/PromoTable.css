@@ -35,3 +35,16 @@
 .promo-table button:hover {
     background-color: rgb(85, 87, 90);
 }
+
+.my-filter-icon {
+    display: inline;
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.25rem;
+    color: #4b5563;
+    cursor: pointer;
+}
+
+.my-filter-icon:hover {
+    color: #3b82f6;
+}

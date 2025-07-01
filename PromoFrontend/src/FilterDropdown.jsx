@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './css/FilterDropdown.css';
 import DateInput from './DateInput';
 
-const FilterDropdown = ({ field, options, onApply, onClose, position }) => {
-    const [selectedOptions, setSelectedOptions] = useState([]);
+const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOptions, setSelectedOptions }) => {
     const dropdownRef = useRef(null);
 
     console.log(selectedOptions, "selectedOptions in FilterDropdown");
@@ -20,6 +19,7 @@ const FilterDropdown = ({ field, options, onApply, onClose, position }) => {
     const handleApply = () => {
         console.log("Applied filters for", field, "=>", selectedOptions);
         onApply(field, selectedOptions);
+        setSelectedOptions(selectedOptions);
         onClose();
     };
 
