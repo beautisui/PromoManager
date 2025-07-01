@@ -68,8 +68,8 @@ export const PromoTable = ({
             const queryParams = selectedOptions.map(encodeURIComponent).join(',');
 
             const url = `${baseUrl}/api/promotion/filter?field=${activeFilterField}&values=${queryParams}&sortBy=${field}&sortOrder=${newSortOrder}`;
-
             const response = await fetch(url);
+
             console.log('Response status -> ', response.ok);
 
             if (!response.ok) throw new Error(`Failed to sort on ${field}`);
@@ -86,7 +86,7 @@ export const PromoTable = ({
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const res = await fetch(`${baseUrl}/api/promotion/${promoId}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Delete failed");
-            onSave(); // refresh table after deletion
+            onSave();
         } catch (err) {
             console.error("Delete error:", err);
         }

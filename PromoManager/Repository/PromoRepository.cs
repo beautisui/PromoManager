@@ -178,36 +178,77 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         }
     }
 
-    public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values)
+    public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc")
     {
         using var connection = CreateConnection();
 
         Console.WriteLine($"Requested filtered data ====> {field} And those are the values====>{string.Join(", ", values)}");
+        Console.WriteLine($"SortBy: {sortBy}, SortOrder: {sortOrder}");
 
-        string query = field.ToLower() switch
+        string orderClause = "";
+        var validSortColumns = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "promoid", "p.PromoId" },
+        { "starttime", "p.StartDate" },
+        { "endtime", "p.EndDate" },
+        { "tactic", "t.TacticType" }
+    };
+
+        if (!string.IsNullOrEmpty(sortBy) && validSortColumns.TryGetValue(sortBy, out var sortColumn))
         {
-            "promoid" => "SELECT * FROM Promotions WHERE PromoId IN @Values",
-            "items" => @"SELECT DISTINCT p.*
-                 FROM Promotions p
-                 JOIN PromoItems pi ON p.PromoId = pi.PromoId
-                 JOIN Items i ON pi.ItemId = i.ItemId
-                 WHERE i.ItemName IN @Values",
-            "stores" => @"SELECT DISTINCT p.*
-                  FROM Promotions p
-                  JOIN PromoStores ps ON p.PromoId = ps.PromoId
-                  JOIN Stores s ON ps.StoreId = s.StoreId
-                  WHERE s.StoreName IN @Values",
-            "tactic" => @"SELECT p.*
-                  FROM Promotions p
-                  JOIN Tactics t ON p.TacticId = t.TacticId
-                  WHERE t.TacticType IN @Values",
-            "starttime" => @"SELECT * FROM Promotions WHERE StartDate BETWEEN @Start AND @End",
-            "endtime" => @"SELECT * FROM Promotions WHERE EndDate BETWEEN @Start AND @End",
-            _ => throw new ArgumentException($"Invalid filter field {field}")
-        };
+            orderClause = $" ORDER BY {sortColumn} {(sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase) ? "DESC" : "ASC")}";
+            Console.WriteLine($"SQL ORDER BY clause: {orderClause}");
+        }
+
+      string query = field.ToLower() switch
+{
+    "promoid" => @$"
+        SELECT p.*
+        FROM Promotions p
+        JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE p.PromoId IN @Values {orderClause}",
+
+    "items" => @$"
+        SELECT DISTINCT p.*
+        FROM Promotions p
+        JOIN PromoItems pi ON p.PromoId = pi.PromoId
+        JOIN Items i ON pi.ItemId = i.ItemId
+        JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE i.ItemName IN @Values {orderClause}",
+
+    "stores" => @$"
+        SELECT DISTINCT p.*
+        FROM Promotions p
+        JOIN PromoStores ps ON p.PromoId = ps.PromoId
+        JOIN Stores s ON ps.StoreId = s.StoreId
+        JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE s.StoreName IN @Values {orderClause}",
+
+    "tactic" => @$"
+        SELECT p.*
+        FROM Promotions p
+        JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE t.TacticType IN @Values {orderClause}",
+
+    "starttime" => @$"
+        SELECT p.*
+        FROM Promotions p
+        JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE StartDate BETWEEN @Start AND @End {orderClause}",
+
+    "endtime" => @$"
+        SELECT p.*
+        FROM Promotions p
+        JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE EndDate BETWEEN @Start AND @End {orderClause}",
+
+    _ => throw new ArgumentException($"Invalid filter field {field}")
+};
+
+        Console.WriteLine($"Executing query: {query}");
 
         List<Promotion> promos;
-        if (field.ToLower() == "starttime" || field.ToLower() == "endtime")
+        if (field.Equals("starttime", StringComparison.OrdinalIgnoreCase) || field.Equals("endtime", StringComparison.OrdinalIgnoreCase))
         {
             promos = (await connection.QueryAsync<Promotion>(query, new { Start = values[0], End = values[1] })).ToList();
         }
@@ -215,8 +256,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         {
             promos = (await connection.QueryAsync<Promotion>(query, new { Values = values })).ToList();
         }
-
-        Console.WriteLine($"=================================>{string.Join(", ", promos.Select(p => p.PromoId))}");
 
         if (!promos.Any())
             return new List<PromotionResponse>();
@@ -236,7 +275,22 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             Items = itemsDict.TryGetValue(promo.PromoId, out var items) ? items : new List<Item>(),
             Stores = storesDict.TryGetValue(promo.PromoId, out var stores) ? stores : new List<Store>(),
             Tactic = tacticsDict.TryGetValue(promo.TacticId, out var tactic) ? tactic : null
-        });
+        }).ToList();
+
+        if (sortBy == "items")
+        {
+            filteredPromo = (sortOrder == "asc"
+                ? filteredPromo.OrderBy(p => string.Join(",", p.Items.Select(i => i.Name)))
+                : filteredPromo.OrderByDescending(p => string.Join(",", p.Items.Select(i => i.Name))))
+                .ToList();
+        }
+        else if (sortBy == "stores")
+        {
+            filteredPromo = (sortOrder == "asc"
+                ? filteredPromo.OrderBy(p => string.Join(",", p.Stores.Select(s => s.Name)))
+                : filteredPromo.OrderByDescending(p => string.Join(",", p.Stores.Select(s => s.Name))))
+                .ToList();
+        }
 
         return filteredPromo;
     }
@@ -284,6 +338,5 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
                 g => g.Select(i => new Item { Id = i.ItemId, Name = i.ItemName }).ToList()
             );
     }
-
 
 }

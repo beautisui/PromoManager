@@ -50,16 +50,14 @@ namespace PromoManager.Controllers
                 return BadRequest(new { message = "Failed to delete promotion", error = ex.Message });
             }
         }
-        
-        
+
+
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterPromotions([FromQuery] string field, [FromQuery] string values)
+        public async Task<IActionResult> FilterPromotions(string field, [FromQuery] string values, [FromQuery] string? sortBy = null, [FromQuery] string sortOrder = "asc")
         {
             var valueList = values.Split(',').ToList();
-            var filteredPromos = await _service.FilterPromotions(field, valueList);
+            var filteredPromos = await _service.FilterPromotions(field, valueList, sortBy, sortOrder);
             return Ok(filteredPromos);
         }
-
-        
     }
 }
