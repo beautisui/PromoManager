@@ -4,8 +4,7 @@ import DateInput from './DateInput';
 
 const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOptions, setSelectedOptions, setActiveFilterField }) => {
     const dropdownRef = useRef(null);
-
-
+    
     const handleOptionChange = (option) => {
         setSelectedOptions(prev =>
             prev.includes(option)
@@ -18,6 +17,8 @@ const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOp
         if (selectedOptions.length === 0) {
             console.log("resetting filter for field:", field);
             setActiveFilterField(null);
+            onClose();
+
             return;
         }
 

@@ -32,3 +32,26 @@ h1 {
 .btn:hover {
   background-color: rgba(27, 175, 5, 0.863);
 }
+
+.reset-btn {
+  margin-left: 2%;
+  color: gray;
+  cursor: pointer;
+  height: 2.5%;
+  width: 2.5%;
+}
+
+.reset-btn:hover {
+  color: blue;
+}
+
+.button-reset-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.reset-btn:active {
+  transform: scale(0.9);
+}

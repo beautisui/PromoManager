@@ -1,5 +1,5 @@
 import './css/PromoTable.css';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import FilterDropdown from './FilterDropdown';
 
 const FilterIcon = ({ className = "" }) => (
@@ -51,6 +51,7 @@ export const PromoTable = ({
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
     const [activeFilterField, setActiveFilterField] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    // const [activeFilterFields, setActiveFilterFields] = useState({});
 
     const handleSorting = async (field) => {
         const newSortOrder = (sortBy === field && sortOrder === "desc") ? "asc" : "desc";
@@ -93,8 +94,12 @@ export const PromoTable = ({
     };
 
     const extractFilterOptions = async (field) => {
+
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
         try {
+            if (field === 'startTime' || field === 'endTime') return;
+
             const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
             if (!response.ok) throw new Error("Failed to fetch filter options");
 
@@ -112,6 +117,7 @@ export const PromoTable = ({
                 default:
                     return [];
             }
+
         } catch (error) {
             console.error("Error fetching filter options:", error);
             return [];
