@@ -75,11 +75,9 @@ try
     var storingStaticDataCommand = new[]
     {
         @"INSERT OR IGNORE INTO Stores (StoreName) VALUES 
-            ('Store1'), ('Store2'), ('Store3'), ('Store4'), ('Store5');",
+            ('Store1'), ('Store2'), ('Store3'), ('Store4'), ('Store5'), ('Store6');",
 
-        @"INSERT OR IGNORE INTO Items (ItemName) VALUES 
-            ('Pen'), ('Pencil'), ('Notebook'), 
-            ('Chips'), ('Chocolate'), ('Ice cream');",
+        @"INSERT OR IGNORE INTO Items (ItemName) VALUES ('Pencil'),('Eraser'),('Sharpener'),('Pen'),('Notebook'),('Ruler'),('Crayon'),('Glue stick'),('Scissors'),('Pencil box');",
 
         @"INSERT OR IGNORE INTO Tactics (TacticType) VALUES 
             ('25% off'), ('1$ off'), ('BOGO Free');"

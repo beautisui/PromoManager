@@ -10,6 +10,5 @@ namespace PromoManager.Repository
         Task<long> DeletePromotion(long promoId);
 
         Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc");
-
     }
 }
