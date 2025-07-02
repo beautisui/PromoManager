@@ -1,12 +1,12 @@
-// Models/Dtos/PromoDTO.cs
+
 namespace PromoManager.Models.Dtos
 {
     public class Promo
     {
-        public List<long> ItemIds { get; set; }
-        public List<long> StoreIds { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public long TacticId { get; set; }
+        public required List<long> ItemIds { get; set; }
+        public required List<long> StoreIds { get; set; }
+        public required DateTime StartDate { get; set; }
+        public required DateTime EndDate { get; set; }
+        public required long TacticId { get; set; }
     }
 }

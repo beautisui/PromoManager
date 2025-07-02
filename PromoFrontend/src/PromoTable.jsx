@@ -95,21 +95,20 @@ export const PromoTable = ({
     const extractFilterOptions = async (field) => {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
         try {
-            const response = await fetch(`${baseUrl}/api/lookup/availableOptions`);
+            const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
             if (!response.ok) throw new Error("Failed to fetch filter options");
+
             const options = await response.json();
 
             switch (field) {
                 case 'promoId':
-                    const promoIdResponse = await fetch(`${baseUrl}/api/lookup/promoIds`);
-                    const promoIds = await promoIdResponse.json();
-                    return promoIds.map(id => id.toString());
+                    return options.map(o => o.PromoId.toString());
                 case 'items':
-                    return options.items.map(i => i.Name);
+                    return options.map(i => i.ItemName);
                 case 'stores':
-                    return options.stores.map(s => s.Name);
+                    return options.map(s => s.StoreName);
                 case 'tactic':
-                    return options.tactics.map(t => t.Type);
+                    return options.map(t => t.TacticType);
                 default:
                     return [];
             }
@@ -118,6 +117,7 @@ export const PromoTable = ({
             return [];
         }
     };
+
 
     const handleFilterClick = async (field, e) => {
         const options = await extractFilterOptions(field);
@@ -194,6 +194,7 @@ export const PromoTable = ({
                     position={dropdownPosition}
                     selectedOptions={selectedOptions}
                     setSelectedOptions={setSelectedOptions}
+                    setActiveFilterField={setActiveFilterField}
                 />
             )}
         </>

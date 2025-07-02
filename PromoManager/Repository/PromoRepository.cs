@@ -338,5 +338,4 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
                 g => g.Select(i => new Item { Id = i.ItemId, Name = i.ItemName }).ToList()
             );
     }
-
 }

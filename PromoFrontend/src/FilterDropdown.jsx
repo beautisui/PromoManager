@@ -2,10 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import './css/FilterDropdown.css';
 import DateInput from './DateInput';
 
-const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOptions, setSelectedOptions }) => {
+const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOptions, setSelectedOptions, setActiveFilterField }) => {
     const dropdownRef = useRef(null);
-
-    console.log(selectedOptions, "selectedOptions in FilterDropdown");
 
 
     const handleOptionChange = (option) => {
@@ -17,7 +15,12 @@ const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOp
     };
 
     const handleApply = () => {
-        console.log("Applied filters for", field, "=>", selectedOptions);
+        if (selectedOptions.length === 0) {
+            console.log("resetting filter for field:", field);
+            setActiveFilterField(null);
+            return;
+        }
+
         onApply(field, selectedOptions);
         setSelectedOptions(selectedOptions);
         onClose();
