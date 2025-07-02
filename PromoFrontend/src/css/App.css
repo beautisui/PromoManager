@@ -17,9 +17,9 @@ h1 {
 }
 
 .promo-modal {
-  background-color: white;
+  background-color: aliceblue;
   border-radius: 10px;
-  padding: 2rem;
+  padding: 4rem;
   max-width: 500px;
   width: 90%;
   z-index: 1001;

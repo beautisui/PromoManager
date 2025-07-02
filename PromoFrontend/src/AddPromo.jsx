@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import ItemSelector from './ItemSelector';
 import StoreSelector from './StoreSelector';
 import TacticSelector from './TacticSelector';
@@ -11,6 +11,19 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
     const [selectedTactic, setSelectedTactic] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const popupRef = useRef();
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (popupRef.current && !popupRef.current.contains(e.target)) {
+                onCancel();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onCancel]);
+
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -43,7 +56,7 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
     };
 
     return (
-        <div className="promo-modal">
+        <div className="promo-modal" ref={popupRef}>
             <h2>Add Promotion</h2>
             {error && <div className="field-error" style={{ marginBottom: 8 }}>{error}</div>}
             <ItemSelector

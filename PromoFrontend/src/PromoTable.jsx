@@ -1,5 +1,5 @@
 import './css/PromoTable.css';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import FilterDropdown from './FilterDropdown';
 
 const FilterIcon = ({ className = "" }) => (
