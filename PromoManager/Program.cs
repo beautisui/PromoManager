@@ -8,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPromoRepository, PromoRepository>();
 builder.Services.AddScoped<IPromoService, PromoService>();
+builder.Services.AddScoped<ILookupRepository, LookupRepository>();
+builder.Services.AddScoped<ILookupService, LookupService>();
+
+
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowAnyOrigin",
         corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin()

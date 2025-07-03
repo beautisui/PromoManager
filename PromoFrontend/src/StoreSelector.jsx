@@ -11,8 +11,8 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
 
     const getStoreNames = () => {
         return stores
-            .filter(store => selectedStores.includes(store.Id))
-            .map(store => store.Name)
+            .filter(store => selectedStores.includes(store.id))
+            .map(store => store.name)
             .join(', ');
     };
 
@@ -25,14 +25,14 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
             {showDropdown && (
                 <div className="dropdown-list">
                     {stores.map(store => (
-                        <div key={store.Id}>
+                        <div key={store.id}>
                             <input
                                 type="checkbox"
-                                id={`store-${store.Id}`}
-                                checked={selectedStores.includes(store.Id)}
-                                onChange={() => toggleStore(store.Id)}
+                                id={`store-${store.id}`}
+                                checked={selectedStores.includes(store.id)}
+                                onChange={() => toggleStore(store.id)}
                             />
-                            <label htmlFor={`store-${store.Id}`}>{store.Name}</label>
+                            <label htmlFor={`store-${store.id}`}>{store.name}</label>
                         </div>
                     ))}
                 </div>

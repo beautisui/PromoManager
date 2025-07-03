@@ -17,7 +17,7 @@ export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, optio
     const openCreatePromoPopup = () => setAddPromoStatus(true);
     const closeCreatePromoPopup = () => setAddPromoStatus(false);
     const handleSavePromotion = async (promoData) => {
-        try {
+        try {            
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const response = await fetch(`${baseUrl}/api/promotion`, {
                 method: "POST",

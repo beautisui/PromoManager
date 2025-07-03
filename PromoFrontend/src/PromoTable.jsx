@@ -51,7 +51,6 @@ export const PromoTable = ({
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
     const [activeFilterField, setActiveFilterField] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
-    // const [activeFilterFields, setActiveFilterFields] = useState({});
 
     const handleSorting = async (field) => {
         const newSortOrder = (sortBy === field && sortOrder === "desc") ? "asc" : "desc";
@@ -66,6 +65,7 @@ export const PromoTable = ({
         }
 
         try {
+
             const queryParams = selectedOptions.map(encodeURIComponent).join(',');
 
             const url = `${baseUrl}/api/promotion/filter?field=${activeFilterField}&values=${queryParams}&sortBy=${field}&sortOrder=${newSortOrder}`;
@@ -100,6 +100,7 @@ export const PromoTable = ({
         try {
             if (field === 'startTime' || field === 'endTime') return;
 
+
             const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
             if (!response.ok) throw new Error("Failed to fetch filter options");
 
@@ -107,13 +108,13 @@ export const PromoTable = ({
 
             switch (field) {
                 case 'promoId':
-                    return options.map(o => o.PromoId.toString());
+                    return options.map(o => o.id.toString());
                 case 'items':
-                    return options.map(i => i.ItemName);
+                    return options.map(i => i.name);
                 case 'stores':
-                    return options.map(s => s.StoreName);
+                    return options.map(s => s.name);
                 case 'tactic':
-                    return options.map(t => t.TacticType);
+                    return options.map(t => t.type);
                 default:
                     return [];
             }
@@ -135,6 +136,12 @@ export const PromoTable = ({
     };
 
     const handleApplyFilter = async (field, optionsSelected) => {
+        if (!field || !optionsSelected || optionsSelected.length === 0) {
+            setActiveFilterField(null);
+            setSelectedOptions([]);
+            onSave();
+            return;
+        }
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const queryParams = optionsSelected.map(encodeURIComponent).join(',');

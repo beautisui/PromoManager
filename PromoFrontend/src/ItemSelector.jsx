@@ -15,8 +15,8 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
 
     const getItemNames = () => {
         return items
-            .filter(item => selectedItems.includes(item.Id))
-            .map(item => item.Name)
+            .filter(item => selectedItems.includes(item.id))
+            .map(item => item.name)
             .join(', ');
     };
 
@@ -29,14 +29,14 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
             {showDropdown ? (
                 <div className="dropdown-list">
                     {items.map(item => (
-                        <div key={item.Id}>
+                        <div key={item.id}>
                             <input
                                 type="checkbox"
-                                id={`item-${item.Id}`}
-                                checked={selectedItems.includes(item.Id)}
-                                onChange={() => toggleItem(item.Id)}
+                                id={`item-${item.id}`}
+                                checked={selectedItems.includes(item.id)}
+                                onChange={() => toggleItem(item.id)}
                             />
-                            <label htmlFor={`item-${item.Id}`}>{item.Name}</label>
+                            <label htmlFor={`item-${item.id}`}>{item.name}</label>
                         </div>
                     ))}
                 </div>

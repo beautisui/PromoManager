@@ -47,7 +47,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
               FROM PromoItems pi
               JOIN Items i ON pi.ItemId = i.ItemId
               ORDER BY Name");
-
         return itemRows.GroupBy(r => r.PromoId)
                    .ToDictionary(
                        g => g.Key,
@@ -203,29 +202,67 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         }
     }
 
-    public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc")
+    private Dictionary<string, string> GetValidSortColumns()
     {
-        using var connection = CreateConnection();
-
-        Console.WriteLine($"Requested filtered data ====> {field} And those are the values====>{string.Join(", ", values)}");
-        Console.WriteLine($"SortBy: {sortBy}, SortOrder: {sortOrder}");
-
-        string orderClause = "";
-        var validSortColumns = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         { "promoid", "p.PromoId" },
         { "starttime", "p.StartDate" },
         { "endtime", "p.EndDate" },
         { "tactic", "t.TacticType" }
     };
+    }
+
+    public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc")
+    {
+        using var connection = CreateConnection();
+
+        string orderClause = "";
+        Dictionary<string, string> validSortColumns = GetValidSortColumns();
 
         if (!string.IsNullOrEmpty(sortBy) && validSortColumns.TryGetValue(sortBy, out var sortColumn))
         {
             orderClause = $" ORDER BY {sortColumn} {(sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase) ? "DESC" : "ASC")}";
-            Console.WriteLine($"SQL ORDER BY clause: {orderClause}");
         }
 
-        string query = field.ToLower() switch
+        string query = GetQueryForFiltering(field, orderClause);
+
+        List<Promotion> promos;
+        if (field.Equals("starttime", StringComparison.OrdinalIgnoreCase) || field.Equals("endtime", StringComparison.OrdinalIgnoreCase))
+        {
+            promos = (await connection.QueryAsync<Promotion>(query, new { Start = values[0], End = values[1] })).ToList();
+        }
+        else
+        {
+            promos = (await connection.QueryAsync<Promotion>(query, new { Values = values })).ToList();
+        }
+
+        if (!promos.Any())
+            return new List<PromotionResponse>();
+
+        var promoIds = promos.Select(p => p.PromoId).ToList();
+        var tacticIds = promos.Select(p => p.TacticId).Distinct().ToList();
+
+        var itemsDict = await GetItemsForPromos(connection, promoIds);
+        var storesDict = await GetStoresForPromos(connection, promoIds);
+        var tacticsDict = await GetTacticsForPromos(connection, tacticIds);
+
+        var filteredPromo = promos.Select(promo => new PromotionResponse
+        {
+            PromoId = promo.PromoId,
+            StartTime = promo.StartDate,
+            EndTime = promo.EndDate,
+            Items = itemsDict.TryGetValue(promo.PromoId, out var items) ? items : new List<Item>(),
+            Stores = storesDict.TryGetValue(promo.PromoId, out var stores) ? stores : new List<Store>(),
+            Tactic = tacticsDict.TryGetValue(promo.TacticId, out var tactic) ? tactic : new Tactic()
+        }).ToList();
+
+        return SortPromotions(filteredPromo, sortBy ?? string.Empty, sortOrder);
+    }
+
+    private static string GetQueryForFiltering(string field, string orderClause)
+    {
+        return field.ToLower() switch
         {
             "promoid" => @$"
         SELECT p.*
@@ -269,55 +306,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
 
             _ => throw new ArgumentException($"Invalid filter field {field}")
         };
-
-        Console.WriteLine($"Executing query: {query}");
-
-        List<Promotion> promos;
-        if (field.Equals("starttime", StringComparison.OrdinalIgnoreCase) || field.Equals("endtime", StringComparison.OrdinalIgnoreCase))
-        {
-            promos = (await connection.QueryAsync<Promotion>(query, new { Start = values[0], End = values[1] })).ToList();
-        }
-        else
-        {
-            promos = (await connection.QueryAsync<Promotion>(query, new { Values = values })).ToList();
-        }
-
-        if (!promos.Any())
-            return new List<PromotionResponse>();
-
-        var promoIds = promos.Select(p => p.PromoId).ToList();
-        var tacticIds = promos.Select(p => p.TacticId).Distinct().ToList();
-
-        var itemsDict = await GetItemsForPromos(connection, promoIds);
-        var storesDict = await GetStoresForPromos(connection, promoIds);
-        var tacticsDict = await GetTacticsForPromos(connection, tacticIds);
-
-        var filteredPromo = promos.Select(promo => new PromotionResponse
-        {
-            PromoId = promo.PromoId,
-            StartTime = promo.StartDate,
-            EndTime = promo.EndDate,
-            Items = itemsDict.TryGetValue(promo.PromoId, out var items) ? items : new List<Item>(),
-            Stores = storesDict.TryGetValue(promo.PromoId, out var stores) ? stores : new List<Store>(),
-            Tactic = tacticsDict.TryGetValue(promo.TacticId, out var tactic) ? tactic : null
-        }).ToList();
-
-        if (sortBy == "items")
-        {
-            filteredPromo = (sortOrder == "asc"
-                ? filteredPromo.OrderBy(p => string.Join(",", p.Items.Select(i => i.Name)))
-                : filteredPromo.OrderByDescending(p => string.Join(",", p.Items.Select(i => i.Name))))
-                .ToList();
-        }
-        else if (sortBy == "stores")
-        {
-            filteredPromo = (sortOrder == "asc"
-                ? filteredPromo.OrderBy(p => string.Join(",", p.Stores.Select(s => s.Name)))
-                : filteredPromo.OrderByDescending(p => string.Join(",", p.Stores.Select(s => s.Name))))
-                .ToList();
-        }
-
-        return filteredPromo;
     }
 
     private async Task<Dictionary<long, Tactic>> GetTacticsForPromos(IDbConnection connection, List<long> tacticIds)

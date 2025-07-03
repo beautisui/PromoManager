@@ -5,7 +5,7 @@ const TacticSelector = ({ tactics, setSelectedTactic }) => (
         <label>Tactic:</label>
         <select onChange={e => setSelectedTactic(Number(e.target.value))} defaultValue="" className="tactic-option">
             <option value="" disabled>Select tactic</option>
-            {tactics.map(t => (<option key={t.Id} value={t.Id} >{t.Type}</option>))}
+            {tactics.map(t => (<option key={t.tacticId} value={t.tacticId} >{t.type}</option>))}
         </select>
     </div>
 );

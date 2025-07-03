@@ -70,7 +70,7 @@ const App = () => {
 
         <ResetIcon
           className="reset-btn"
-          onClick={()=> window.location.reload()}
+          onClick={() => window.location.reload()}
         />
       </div>
 
