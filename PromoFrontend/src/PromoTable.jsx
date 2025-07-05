@@ -50,31 +50,29 @@ export const PromoTable = ({
     const [filterOptions, setFilterOptions] = useState([]);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
     const [activeFilterField, setActiveFilterField] = useState(null);
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState({});
 
     const handleSorting = async (field) => {
         const newSortOrder = (sortBy === field && sortOrder === "desc") ? "asc" : "desc";
         setSortBy(field);
         setSortOrder(newSortOrder);
-
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
         if (!activeFilterField) {
             onSave(field, newSortOrder);
             return;
         }
-
         try {
-
-            const queryParams = selectedOptions.map(encodeURIComponent).join(',');
-
+            const optionsForField = selectedOptions[activeFilterField] || [];
+            const queryParams = optionsForField.map(encodeURIComponent).join(',');
+            if (!queryParams) {
+                setActiveFilterField(null);
+                setSelectedOptions(prev => ({ ...prev, [activeFilterField]: [] }));
+                onSave(field, newSortOrder);
+                return;
+            }
             const url = `${baseUrl}/api/promotion/filter?field=${activeFilterField}&values=${queryParams}&sortBy=${field}&sortOrder=${newSortOrder}`;
             const response = await fetch(url);
-
-            console.log('Response status -> ', response.ok);
-
             if (!response.ok) throw new Error(`Failed to sort on ${field}`);
-
             const data = await response.json();
             setPromotions(data);
         } catch (error) {
@@ -99,7 +97,6 @@ export const PromoTable = ({
 
         try {
             if (field === 'startTime' || field === 'endTime') return;
-
 
             const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
             if (!response.ok) throw new Error("Failed to fetch filter options");
@@ -133,28 +130,33 @@ export const PromoTable = ({
         setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
         setFilterOptions(options);
         setActiveFilterColumn(field);
+        
+        console.log('Inside handleFilterClick, filterOptions:', options, 'activeFilterColumn:', field, "selectedOptions");
     };
 
     const handleApplyFilter = async (field, optionsSelected) => {
         if (!field || !optionsSelected || optionsSelected.length === 0) {
             setActiveFilterField(null);
-            setSelectedOptions([]);
+            setSelectedOptions(prev => ({ ...prev, [field]: [] }));
             onSave();
             return;
         }
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const queryParams = optionsSelected.map(encodeURIComponent).join(',');
-
+            if (!queryParams) {
+                setActiveFilterField(null);
+                setSelectedOptions(prev => ({ ...prev, [field]: [] }));
+                onSave();
+                return;
+            }
             const url = `${baseUrl}/api/promotion/filter?field=${field}&values=${queryParams}`;
             const response = await fetch(url);
-
             if (!response.ok) throw new Error(`Failed during applying filter on ${field}`);
-
             const data = await response.json();
             setPromotions(data);
             setActiveFilterField(field);
-            setSelectedOptions(optionsSelected);
+            setSelectedOptions(prev => ({ ...prev, [field]: optionsSelected }));
         } catch (error) {
             console.error("Error applying filter:", error);
         }
@@ -203,7 +205,7 @@ export const PromoTable = ({
                     field={activeFilterColumn}
                     options={filterOptions}
                     onApply={handleApplyFilter}
-                    onClose={() => { setActiveFilterColumn(null); setSelectedOptions([]); }}
+                    onClose={() => { setActiveFilterColumn(null), setSelectedOptions([]) }}
                     position={dropdownPosition}
                     selectedOptions={selectedOptions}
                     setSelectedOptions={setSelectedOptions}
