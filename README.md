@@ -79,8 +79,6 @@ If you are creating a new frontend from scratch, run:
 npm create vite@latest promo-frontend -- --template react
 ```
 
-#### 📦 Install dependencies
-
 If you already have the frontend project, navigate to its folder:
 
 ```bash
@@ -112,8 +110,8 @@ npm run dev
 | `/api/promotion`               | `GET`      | Retrieve all promotions with optional sorting                     | `sortBy`, `sortOrder`                    |
 | `/api/promotion/filter`        | `GET`      | Filter promotions based on field and values with optional sorting | `field`, `values`, `sortBy`, `sortOrder` |
 | `/api/promotion`               | `POST`     | Create a new promotion                                            | –                                        |
-| `/api/promotion/{id}`          | `PATCH`    | Update an existing promotion                                      | –                                        |
-| `/api/promotion/{id}`          | `DELETE`   | Delete a promotion                                                | –                                        |
+| `/api/promotion/{promoId}`          | `PATCH`    | Update an existing promotion                                      | –                                        |
+| `/api/promotion/{promoId}`          | `DELETE`   | Delete a promotion                                                | –                                        |
 | `/api/lookup/items`            | `GET`      | Fetch list of items                                               | –                                        |
 | `/api/lookup/stores`           | `GET`      | Fetch list of stores                                              | –                                        |
 | `/api/lookup/tactics`          | `GET`      | Fetch list of tactics                                             | –                                        |
@@ -304,6 +302,6 @@ This document compiles all acceptance criteria for the key promotion features.
 
 ## Promotions Application Architecture Diagram
 
-![Promo Manager Architecture Diagram](../PromoManager/PromoManager/wwwroot/PromoDiargram.png)
+![Promo Manager Architecture Diagram](./PromoManager/wwwroot/PromoDiargram.png)
 
 ---
