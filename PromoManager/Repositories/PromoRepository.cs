@@ -359,7 +359,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
 
         try
         {
-            // Update Promotions table fields if provided
             const string updatePromoSql = @"
         UPDATE Promotions
         SET StartDate = COALESCE(@StartDate, StartDate),
@@ -378,10 +377,10 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             if (rowsAffected == 0)
             {
                 tx.Rollback();
-                return null; // Promotion not found
+                return null;
             }
 
-            // Update PromoItems if itemIds provided
+
             if (request.ItemIds != null)
             {
                 await connection.ExecuteAsync("DELETE FROM PromoItems WHERE PromoId = @PromoId", new { request.PromoId }, tx);
@@ -393,7 +392,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
                 }
             }
 
-            // Update PromoStores if storeIds provided
             if (request.StoreIds != null)
             {
                 await connection.ExecuteAsync("DELETE FROM PromoStores WHERE PromoId = @PromoId", new { request.PromoId }, tx);
@@ -407,7 +405,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
 
             tx.Commit();
 
-            // Return updated promotion using your existing get methods
             return (await GetAllPromotions("promoid", "asc")).FirstOrDefault(p => p.PromoId == request.PromoId);
         }
         catch
