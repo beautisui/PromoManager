@@ -82,6 +82,7 @@ const App = () => {
         sortOrder={sortOrder}
         setSortBy={setSortBy}
         setSortOrder={setSortOrder}
+        options={options}
       />
     </main>
   );

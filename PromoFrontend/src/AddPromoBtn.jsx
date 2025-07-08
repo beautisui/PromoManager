@@ -35,7 +35,6 @@ export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, optio
             if (onPromoSave) {
                 onPromoSave();
             }
-
         }
         catch (err) {
             console.error("error => ", err.message);

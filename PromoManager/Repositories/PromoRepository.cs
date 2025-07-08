@@ -1,5 +1,4 @@
 using PromoManager.Models.Entities;
-using PromoManager.Models.Dtos;
 using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -351,4 +350,71 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
                 g => g.Select(i => new Item { Id = i.ItemId, Name = i.ItemName }).ToList()
             );
     }
+
+    public async Task<PromotionResponse?> EditPromotion(EditPromo request)
+    {
+        using var connection = CreateConnection();
+        connection.Open();
+        using var tx = connection.BeginTransaction();
+
+        try
+        {
+            // Update Promotions table fields if provided
+            const string updatePromoSql = @"
+        UPDATE Promotions
+        SET StartDate = COALESCE(@StartDate, StartDate),
+            EndDate = COALESCE(@EndDate, EndDate),
+            TacticId = COALESCE(@TacticId, TacticId)
+        WHERE PromoId = @PromoId;";
+
+            var rowsAffected = await connection.ExecuteAsync(updatePromoSql, new
+            {
+                request.StartDate,
+                request.EndDate,
+                request.TacticId,
+                request.PromoId
+            }, tx);
+
+            if (rowsAffected == 0)
+            {
+                tx.Rollback();
+                return null; // Promotion not found
+            }
+
+            // Update PromoItems if itemIds provided
+            if (request.ItemIds != null)
+            {
+                await connection.ExecuteAsync("DELETE FROM PromoItems WHERE PromoId = @PromoId", new { request.PromoId }, tx);
+
+                const string insertItemSql = "INSERT INTO PromoItems (PromoId, ItemId) VALUES (@PromoId, @ItemId)";
+                foreach (var itemId in request.ItemIds)
+                {
+                    await connection.ExecuteAsync(insertItemSql, new { request.PromoId, ItemId = itemId }, tx);
+                }
+            }
+
+            // Update PromoStores if storeIds provided
+            if (request.StoreIds != null)
+            {
+                await connection.ExecuteAsync("DELETE FROM PromoStores WHERE PromoId = @PromoId", new { request.PromoId }, tx);
+
+                const string insertStoreSql = "INSERT INTO PromoStores (PromoId, StoreId) VALUES (@PromoId, @StoreId)";
+                foreach (var storeId in request.StoreIds)
+                {
+                    await connection.ExecuteAsync(insertStoreSql, new { request.PromoId, StoreId = storeId }, tx);
+                }
+            }
+
+            tx.Commit();
+
+            // Return updated promotion using your existing get methods
+            return (await GetAllPromotions("promoid", "asc")).FirstOrDefault(p => p.PromoId == request.PromoId);
+        }
+        catch
+        {
+            tx.Rollback();
+            throw;
+        }
+    }
+
 }

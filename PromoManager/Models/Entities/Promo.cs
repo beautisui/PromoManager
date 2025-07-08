@@ -1,5 +1,5 @@
 
-namespace PromoManager.Models.Dtos
+namespace PromoManager.Models.Entities
 {
     public class Promo
     {

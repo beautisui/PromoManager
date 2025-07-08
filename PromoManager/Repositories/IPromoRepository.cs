@@ -1,4 +1,3 @@
-using PromoManager.Models.Dtos;
 using PromoManager.Models.Entities;
 
 namespace PromoManager.Repository
@@ -10,5 +9,6 @@ namespace PromoManager.Repository
         Task<long> DeletePromotion(long promoId);
 
         Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc");
+        Task<PromotionResponse> EditPromotion(EditPromo request);
     }
 }

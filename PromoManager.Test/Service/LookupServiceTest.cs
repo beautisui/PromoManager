@@ -2,6 +2,7 @@ using Moq;
 using PromoManager.Models.Entities;
 using PromoManager.Repository;
 using PromoManager.Service;
+using PromoManager.Services;
 
 namespace PromoManager.Test.Service;
 

@@ -1,7 +1,8 @@
 using PromoManager.Models.Entities;
 using PromoManager.Repository;
+using PromoManager.Service;
 
-namespace PromoManager.Service
+namespace PromoManager.Services
 {
     public class LookupService : ILookupService
     {

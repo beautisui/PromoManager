@@ -1,11 +1,17 @@
-import "./css/TacticSelector.css"
+import "./css/TacticSelector.css";
 
-const TacticSelector = ({ tactics, setSelectedTactic }) => (
+const TacticSelector = ({ tactics, selectedTactic, setSelectedTactic }) => (
     <div>
         <label>Tactic:</label>
-        <select onChange={e => setSelectedTactic(Number(e.target.value))} defaultValue="" className="tactic-option">
+        <select
+            value={selectedTactic || ""}
+            onChange={e => setSelectedTactic(Number(e.target.value))}
+            className="tactic-option"
+        >
             <option value="" disabled>Select tactic</option>
-            {tactics.map(t => (<option key={t.tacticId} value={t.tacticId} >{t.type}</option>))}
+            {tactics.map(t => (
+                <option key={t.tacticId} value={t.tacticId}>{t.type}</option>
+            ))}
         </select>
     </div>
 );

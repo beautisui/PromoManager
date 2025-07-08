@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.Data.Sqlite;
 using PromoManager.Repository;
 using PromoManager.Service;
+using PromoManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

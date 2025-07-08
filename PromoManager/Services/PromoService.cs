@@ -1,4 +1,3 @@
-using PromoManager.Models.Dtos;
 using PromoManager.Models.Entities;
 
 using PromoManager.Repository;
@@ -42,7 +41,28 @@ namespace PromoManager.Service
             return await _repository.FilterPromotions(field, values, sortBy, sortOrder);
         }
 
+        public async Task<PromotionResponse> EditPromotion(EditPromo request)
+        {
+            if (!string.IsNullOrEmpty(request.StartDate))
+            {
+                if (DateTime.Parse(request.StartDate).Date < DateTime.UtcNow.Date)
+                    throw new ArgumentException("Start date must be today or in the future.");
+            }
+
+            if (!string.IsNullOrEmpty(request.EndDate) && !string.IsNullOrEmpty(request.StartDate))
+            {
+                if (DateTime.Parse(request.EndDate).Date < DateTime.Parse(request.StartDate).Date)
+                    throw new ArgumentException("End date must be the same or after the start date.");
+            }
+
+            if (request.ItemIds != null && !request.ItemIds.Any())
+                throw new ArgumentException("At least one item ID must be provided.");
 
 
+            if (request.StoreIds != null && !request.StoreIds.Any())
+                throw new ArgumentException("At least one store ID must be provided.");
+
+            return await _repository.EditPromotion(request);
+        }
     }
 }

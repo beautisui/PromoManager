@@ -1,5 +1,5 @@
 using Moq;
-using PromoManager.Models.Dtos;
+using PromoManager.Models.Entities;
 using PromoManager.Repository;
 using PromoManager.Service;
 using PromoManager.Models.Entities;

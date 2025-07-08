@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using PromoManager.Models.Dtos;
+using PromoManager.Models.Entities;
 using PromoManager.Service;
 
 namespace PromoManager.Controllers
@@ -59,5 +59,17 @@ namespace PromoManager.Controllers
             var filteredPromos = await _service.FilterPromotions(field, valueList, sortBy, sortOrder);
             return Ok(filteredPromos);
         }
+
+        [HttpPatch]
+        public async Task<IActionResult> EditPromotion([FromBody] EditPromo request)
+        {
+            var updatedPromo = await _service.EditPromotion(request);
+            if (updatedPromo == null)
+            {
+                return NotFound(new { message = "Promotion not found" });
+            }
+            return Ok(updatedPromo);
+        }
+
     }
 }
