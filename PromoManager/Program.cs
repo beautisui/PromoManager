@@ -12,12 +12,11 @@ builder.Services.AddScoped<IPromoService, PromoService>();
 builder.Services.AddScoped<ILookupRepository, LookupRepository>();
 builder.Services.AddScoped<ILookupService, LookupService>();
 
-
-// builder.Services.AddCors(options =>
-//     options.AddPolicy("AllowAnyOrigin",
-//         corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin()
-//             .AllowAnyHeader()
-//             .AllowAnyMethod()));
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowAnyOrigin",
+        corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()));
 
 try
 {
