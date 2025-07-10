@@ -305,3 +305,32 @@ This document compiles all acceptance criteria for the key promotion features.
 ![Promo Manager Architecture Diagram](./PromoManager/wwwroot/PromoDiargram.png)
 
 ---
+
+| **Path** | **Method** | **Description** |
+|-|-|-|
+|`/api/promotion/search` | POST | For getting all promotion where you can apply soring , filtering |
+|`/api/promotion`| POST | For creating a Promotion|
+
+---
+
+  **JSON Body for `/api/promotion/search`**:
+
+```json
+{
+  "filters": [
+    { "field": "items", "values": ["pen", "pencil"] },
+    { "field": "stores", "values": ["store1", "store2"] }
+  ],
+  "sortBy": "promoId",
+  "sortOrder": "asc"
+}
+
+or
+
+{
+  "filters": [],
+  "sortBy": "promoId",
+  "sortOrder": "asc"
+}
+
+```
