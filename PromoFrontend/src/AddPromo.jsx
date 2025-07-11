@@ -88,7 +88,6 @@ export const AddPromo = ({ items, stores, tactics, onSave, onCancel }) => {
             {missing.startDate && <div className="field-error">Please select a start date.</div>}
 
             <DateInput
-
                 label="End Date"
                 value={endDate}
                 onChange={setEndDate}

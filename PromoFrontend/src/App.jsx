@@ -2,26 +2,7 @@ import { useState, useEffect } from 'react';
 import { PromoTable } from './PromoTable';
 import { AddPromoBtn } from './AddPromoBtn';
 import './css/App.css';
-
-const ResetIcon = ({ width = "20", height = "20", className = "", onClick }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width={width}
-    height={height}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    onClick={onClick}
-  >
-    <path d="M21 2v6h-6" />
-    <path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.36 2.64L21 8" />
-    <path d="M21 12a9 9 0 1 1-9-9" />
-  </svg>
-);
+import { ResetIcon } from './Icons';
 
 const App = () => {
   const [promotions, setPromotions] = useState([]);
@@ -30,11 +11,21 @@ const App = () => {
   const [sortBy, setSortBy] = useState("promoId");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  const fetchPromotions = async (field = sortBy, order = sortOrder) => {
+  const fetchPromotions = async (field = sortBy, order = sortOrder, filters = []) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     try {
-      const response = await fetch(`${baseUrl}/api/promotion?sortBy=${field}&sortOrder=${order}`);
+      const response = await fetch(`${baseUrl}/api/promotion/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sortBy: field,
+          sortOrder: order,
+          filters
+        })
+      });
 
       const data = await response.json();
       setPromotions(data);
@@ -76,7 +67,6 @@ const App = () => {
 
       <PromoTable
         promotions={promotions}
-        setPromotions={setPromotions}
         onSave={fetchPromotions}
         sortBy={sortBy}
         sortOrder={sortOrder}

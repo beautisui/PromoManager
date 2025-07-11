@@ -23,8 +23,8 @@ const getOriginalPromoDetails = (promo) => {
     const originalItems = promo.items.map(i => i.id);
     const originalStores = promo.stores.map(s => s.id);
     const originalTactic = promo.tactic.tacticId;
-    const originalStart = promo.startTime.slice(0, 10);
-    const originalEnd = promo.endTime.slice(0, 10);
+    const originalStart = promo.startDate.slice(0, 10);
+    const originalEnd = promo.endDate.slice(0, 10);
 
     return { originalItems, originalStores, originalTactic, originalEnd, originalStart }
 }
@@ -33,8 +33,8 @@ const EditPromo = ({ promo, items, stores, tactics, onSave, onCancel }) => {
     const [selectedItems, setSelectedItems] = useState(promo.items.map(i => i.id));
     const [selectedStores, setSelectedStores] = useState(promo.stores.map(s => s.id));
     const [selectedTactic, setSelectedTactic] = useState(promo.tactic.tacticId);
-    const [startDate, setStartDate] = useState(promo.startTime.slice(0, 10));
-    const [endDate, setEndDate] = useState(promo.endTime.slice(0, 10));
+    const [startDate, setStartDate] = useState(promo.startDate.slice(0, 10));
+    const [endDate, setEndDate] = useState(promo.endDate.slice(0, 10));
     const [isChanged, setIsChanged] = useState(false);
     const [error, setError] = useState('');
     const [missing, setMissing] = useState({});

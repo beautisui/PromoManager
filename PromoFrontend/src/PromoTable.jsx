@@ -2,19 +2,16 @@ import { useState } from 'react';
 import FilterDropdown from './FilterDropdown';
 import EditPromo from './EditPromo';
 import './css/PromoTable.css';
+import { FilterIcon } from './Icons';
 
-const FilterIcon = ({ className = "" }) => (
-    <svg
-        className={className}
-        xmlns="http://www.w3.org/2000/svg"
-        height="24"
-        width="24"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-    >
-        <path d="M3 4h18l-7 10v5l-4 2v-7L3 4z" />
-    </svg>
-);
+const createFilterBody = (selectedOptions) => {
+    return Object.entries(selectedOptions)
+        .filter(([field, values]) => field && field !== "null" && values && values.length > 0)
+        .map(([field, values]) => ({
+            field,
+            values
+        }));
+};
 
 const separateByComma = (arr, key = 'name') =>
     arr
@@ -28,8 +25,8 @@ const PromoRow = ({ promo, onDelete, onEdit }) => (
         <td>{promo.promoId}</td>
         <td>{separateByComma(promo.items)}</td>
         <td>{separateByComma(promo.stores)}</td>
-        <td>{promo.startTime.slice(0, 10)}</td>
-        <td>{promo.endTime.slice(0, 10)}</td>
+        <td>{promo.startDate.slice(0, 10)}</td>
+        <td>{promo.endDate.slice(0, 10)}</td>
         <td>{promo.tactic.type}</td>
         <td>
             <button onClick={() => onEdit(promo)}>Edit</button>
@@ -40,7 +37,6 @@ const PromoRow = ({ promo, onDelete, onEdit }) => (
 
 export const PromoTable = ({
     promotions,
-    setPromotions,
     onSave,
     sortBy,
     sortOrder,
@@ -60,26 +56,13 @@ export const PromoTable = ({
         setSortBy(field);
         setSortOrder(newSortOrder);
 
-        const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        if (!activeFilterField) {
+        if (Object.keys(selectedOptions).length === 0) {
             onSave(field, newSortOrder);
             return;
         }
 
-        try {
-            const optionsForField = selectedOptions[activeFilterField] || [];
-            const queryParams = optionsForField.map(encodeURIComponent).join(',');
-
-            const url = `${baseUrl}/api/promotion/filter?field=${activeFilterField}&values=${queryParams}&sortBy=${field}&sortOrder=${newSortOrder}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Failed to sort on ${field}`);
-            const data = await response.json();
-            setPromotions(data);
-        } catch (error) {
-            console.error("Error in filtered sorting:", error);
-        }
-    };
-
+        onSave(field, newSortOrder, createFilterBody(selectedOptions));
+    }
     const handleDeletePromo = async (promoId) => {
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -94,6 +77,8 @@ export const PromoTable = ({
     const handleEditSave = async (updatedPromo) => {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
         try {
+
+            console.log("Updating promo:", updatedPromo);
             const res = await fetch(`${baseUrl}/api/promotion`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -112,7 +97,8 @@ export const PromoTable = ({
     const extractFilterOptions = async (field) => {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
         try {
-            if (field === 'startTime' || field === 'endTime') return;
+            if (field === 'startDate' || field === 'endDate') return;
+
             const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
             if (!response.ok) throw new Error("Failed to fetch filter options");
 
@@ -140,19 +126,23 @@ export const PromoTable = ({
 
     const handleApplyFilter = async (field, optionsSelected) => {
         if (!field || !optionsSelected || optionsSelected.length === 0) {
-            setActiveFilterField(null);
-            setSelectedOptions(prev => ({ ...prev, [field]: [] }));
-            onSave();
+
+            setSelectedOptions(prev => {
+                const updated = { ...prev, [field]: [] };
+                Object.keys(updated).forEach(key => {
+                    if (!updated[key] || updated[key].length === 0) {
+                        delete updated[key];
+                    }
+                });
+                return updated;
+            });
+            onSave(sortBy, sortOrder, createFilterBody(selectedOptions));
             return;
         }
+
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL;
-            const queryParams = optionsSelected.map(encodeURIComponent).join(',');
-            const url = `${baseUrl}/api/promotion/filter?field=${field}&values=${queryParams}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Failed during applying filter on ${field}`);
-            const data = await response.json();
-            setPromotions(data);
+            onSave(sortBy, sortOrder, createFilterBody(selectedOptions));
+
             setActiveFilterField(field);
             setSelectedOptions(prev => ({ ...prev, [field]: optionsSelected }));
         } catch (error) {
@@ -178,16 +168,21 @@ export const PromoTable = ({
                 />
             )}
 
-            {activeFilterField && (
+            {Object.values(selectedOptions).some(v => v && v.length > 0) && (
                 <div className="active-filter-info">
-                    Filtering based on: <strong>{activeFilterField}</strong>
+                    Filtering based on:  <strong>
+                        {Object.entries(selectedOptions)
+                            .filter(([k, v]) => v && v.length > 0)
+                            .map(([k]) => k)
+                            .join(", ")}
+                    </strong>
                 </div>
             )}
 
             <table className="promo-table">
                 <thead>
                     <tr>
-                        {["promoId", "items", "stores", "startTime", "endTime", "tactic"].map(field => (
+                        {["promoId", "items", "stores", "startDate", "endDate", "tactic"].map(field => (
                             <th key={field}>
                                 <span onClick={() => handleSorting(field)}>
                                     {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -228,4 +223,5 @@ export const PromoTable = ({
             )}
         </>
     );
-};
+
+}

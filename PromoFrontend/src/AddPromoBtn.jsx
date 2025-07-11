@@ -16,8 +16,9 @@ const addPromoPopup = (handleSavePromotion, closeCreatePromoPopup, options) => {
 export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, options }) => {
     const openCreatePromoPopup = () => setAddPromoStatus(true);
     const closeCreatePromoPopup = () => setAddPromoStatus(false);
+
     const handleSavePromotion = async (promoData) => {
-        try {            
+        try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const response = await fetch(`${baseUrl}/api/promotion`, {
                 method: "POST",
@@ -30,17 +31,14 @@ export const AddPromoBtn = ({ promoStatus, setAddPromoStatus, onPromoSave, optio
             if (!response.ok) {
                 throw new Error("Failed to save promotion");
             }
-            setAddPromoStatus(false);
 
-            if (onPromoSave) {
-                onPromoSave();
-            }
+            setAddPromoStatus(false);
+            onPromoSave();
         }
         catch (err) {
-            console.error("error => ", err.message);
+            console.error("Error in AddPromoBtn:", err.message);
         }
     };
-
 
     return (
         <>

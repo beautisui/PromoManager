@@ -4,7 +4,6 @@ import DateInput from './DateInput';
 
 const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOptions, setSelectedOptions, setActiveFilterField }) => {
     const dropdownRef = useRef(null);
-
     const currentOptions = selectedOptions[field] || [];
 
     const handleOptionChange = (option) => {
@@ -25,6 +24,7 @@ const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOp
             onClose();
             return;
         }
+
         onApply(field, optionsForField);
         setSelectedOptions(prev => ({ ...prev, [field]: optionsForField }));
         onClose();
@@ -47,7 +47,7 @@ const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOp
             style={{ top: position.top, left: position.left }}
         >
             <h4>Filter {field}</h4>
-            {field === 'startTime' || field === 'endTime' ? (
+            {field === 'startDate' || field === 'endDate' ? (
                 <div>
                     <DateInput
                         label="From"
