@@ -45,8 +45,7 @@ namespace PromoManager.Repository
         public async Task<IEnumerable<FilterOption>> GetFilterOptions(string field)
         {
             using var db = CreateConnection();
-            Console.WriteLine($"This is inside lookup filter =========> {field}");
-
+            
             string query = field.ToLower() switch
             {
                 "promoid" => "SELECT DISTINCT PromoId AS Id FROM Promotions;",
@@ -71,8 +70,6 @@ namespace PromoManager.Repository
 
 
             var response = await db.QueryAsync<FilterOption>(query);
-            Console.WriteLine($"+++++++++++++++++++++++++++++++ this is the response for filter {String.Join(", ", response)}");
-
             return response;
         }
 

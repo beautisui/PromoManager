@@ -1,8 +1,7 @@
 using Moq;
 using PromoManager.Models.Entities;
-using PromoManager.Repository;
+using PromoManager.Repositories;
 using PromoManager.Service;
-using PromoManager.Models.Entities;
 
 namespace PromoManager.Test.Service;
 
@@ -19,7 +18,6 @@ public class PromoServiceTest
         _mockRepo = new Mock<IPromoRepository>();
         _promoService = new PromoService(_mockRepo.Object);
     }
-
     [Test]
     public async Task GetAllPromotionsShouldReturnAllPromotions()
     {
@@ -30,16 +28,25 @@ public class PromoServiceTest
                 PromoId = 1,
                 Items = new List<Item> { new() { Id = 1, Name = "Pen" } },
                 Stores = new List<Store> { new() { Id = 1, Name = "Store1" } },
-                StartTime = DateTime.Now,
-                EndTime = DateTime.Now.AddDays(1),
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1),
                 Tactic = new Tactic { TacticId = 1, Type = "10% Off" }
             }
         };
 
-        _mockRepo.Setup(repo => repo.GetAllPromotions("PromoId", "desc"))
+        var request = new PromoFilterRequest
+        {
+            Filters = new List<PromoFilterModel>(),
+            SortBy = "PromoId",
+            SortOrder = "desc"
+        };
+
+        _mockRepo.Setup(repo => repo.GetPromotionsBy(It.Is<PromoFilterRequest>(r =>
+                r.SortBy == "PromoId" &&
+                r.SortOrder == "desc")))
             .ReturnsAsync(expectedPromos);
 
-        var result = await _promoService.GetAllPromotions("PromoId", "desc");
+        var result = await _promoService.GetPromotionsBy(request);
 
         Assert.AreEqual(1, result.Count());
         Assert.AreEqual(1, result.First().PromoId);

@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
+using PromoManager.Repositories;
 using PromoManager.Repository;
 using PromoManager.Service;
 using PromoManager.Services;

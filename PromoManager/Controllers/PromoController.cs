@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PromoManager.Models.Entities;
 using PromoManager.Service;
+using PromoManager.Services;
 
 namespace PromoManager.Controllers
 {
@@ -29,10 +30,10 @@ namespace PromoManager.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllPromotions([FromQuery] string sortBy = "promoId", [FromQuery] string sortOrder = "desc")
+        [HttpPost("search")]
+        public async Task<IActionResult> GetPromotionsBy([FromBody] PromoFilterRequest filterRequest)
         {
-            var result = await _service.GetAllPromotions(sortBy, sortOrder);
+            var result = await _service.GetPromotionsBy(filterRequest);
             return Ok(result);
         }
 
@@ -51,23 +52,10 @@ namespace PromoManager.Controllers
             }
         }
 
-
-        [HttpGet("filter")]
-        public async Task<IActionResult> FilterPromotions(string field, [FromQuery] string values, [FromQuery] string? sortBy = null, [FromQuery] string sortOrder = "asc")
-        {
-            var valueList = values.Split(',').ToList();
-            var filteredPromos = await _service.FilterPromotions(field, valueList, sortBy, sortOrder);
-            return Ok(filteredPromos);
-        }
-
         [HttpPatch]
         public async Task<IActionResult> EditPromotion([FromBody] EditPromo request)
         {
             var updatedPromo = await _service.EditPromotion(request);
-            if (updatedPromo == null)
-            {
-                return NotFound(new { message = "Promotion not found" });
-            }
             return Ok(updatedPromo);
         }
 

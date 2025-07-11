@@ -1,13 +1,12 @@
 using PromoManager.Models.Entities;
 
-namespace PromoManager.Service
+namespace PromoManager.Services
 {
     public interface IPromoService
     {
         Task<long> AddPromotion(Promo dto);
-        Task<IEnumerable<PromotionResponse>> GetAllPromotions(string sortBy, string sortOrder);
+        Task<IEnumerable<PromotionResponse>> GetPromotionsBy(PromoFilterRequest request);
         Task<long> DeletePromotion(long promoId);
-        Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc");
         Task<PromotionResponse> EditPromotion(EditPromo request);
     }
 }

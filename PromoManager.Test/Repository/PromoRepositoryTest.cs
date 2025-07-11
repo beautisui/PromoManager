@@ -1,9 +1,10 @@
+using PromoManager.Repositories;
 using PromoManager.Repository;
 
 namespace PromoManager.Test.Repository;
 
 [TestFixture]
-[TestOf(typeof(PromoManager.Repository.PromoRepository))]
+[TestOf(typeof(PromoRepository))]
 public class PromoRepositoryTest
 {
 

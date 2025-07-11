@@ -1,6 +1,7 @@
 using PromoManager.Models.Entities;
-
+using PromoManager.Repositories;
 using PromoManager.Repository;
+using PromoManager.Services;
 
 namespace PromoManager.Service
 {
@@ -26,19 +27,14 @@ namespace PromoManager.Service
             return await _repository.AddPromotion(dto);
         }
 
-        public async Task<IEnumerable<PromotionResponse>> GetAllPromotions(string sortBy, string sortOrder)
+        public async Task<IEnumerable<PromotionResponse>> GetPromotionsBy(PromoFilterRequest request)
         {
-            return await _repository.GetAllPromotions(sortBy, sortOrder);
+            return await _repository.GetPromotionsBy(request);
         }
 
         public Task<long> DeletePromotion(long promoId)
         {
             return _repository.DeletePromotion(promoId);
-        }
-
-        public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc")
-        {
-            return await _repository.FilterPromotions(field, values, sortBy, sortOrder);
         }
 
         public async Task<PromotionResponse> EditPromotion(EditPromo request)

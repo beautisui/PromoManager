@@ -1,9 +1,9 @@
-using PromoManager.Models.Entities;
 using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using PromoManager.Models.Entities;
 
-namespace PromoManager.Repository;
+namespace PromoManager.Repositories;
 
 public class PromoRepository(IConfiguration configuration) : IPromoRepository
 {
@@ -12,80 +12,30 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         Console.WriteLine($"DB file path: {configuration.GetConnectionString("DefaultConnection")}");
         return new SqliteConnection(configuration.GetConnectionString("DefaultConnection"));
     }
-    private async Task<IEnumerable<PromotionDetails>> FetchPromotions(IDbConnection connection, string sortBy, string sortOrder)
-    {
-        var orderByClause = GetOrderByClause(sortBy, sortOrder);
-        var query = BuildPromoDetailsQuery(orderByClause);
-        return await connection.QueryAsync<PromotionDetails>(query);
-    }
 
-    private string GetOrderByClause(string sortBy, string sortOrder) =>
-        sortBy.ToLower() switch
+    public async Task<PromotionResponse?> GetPromotionById(long promoId)
+    {
+        using var connection = CreateConnection();
+
+        var promo = await connection.QueryFirstOrDefaultAsync<Promotion>(
+            @"SELECT * FROM Promotions WHERE PromoId = @PromoId", new { PromoId = promoId });
+
+        if (promo == null)
+            return null;
+
+        var itemsDict = await GetItemsForPromos(connection, new List<long> { promo.PromoId });
+        var storesDict = await GetStoresForPromos(connection, new List<long> { promo.PromoId });
+        var tacticsDict = await GetTacticsForPromos(connection, new List<long> { promo.TacticId });
+
+        return new PromotionResponse
         {
-            "starttime" => $"p.StartDate {sortOrder}",
-            "endtime" => $"p.EndDate {sortOrder}",
-            "tactic" => $"t.TacticType {sortOrder}",
-            _ => $"p.PromoId {sortOrder}"
+            PromoId = promo.PromoId,
+            StartDate = promo.StartDate,
+            EndDate = promo.EndDate,
+            Items = itemsDict.GetValueOrDefault(promo.PromoId) ?? new List<Item>(),
+            Stores = storesDict.GetValueOrDefault(promo.PromoId) ?? new List<Store>(),
+            Tactic = tacticsDict.GetValueOrDefault(promo.TacticId, new Tactic())
         };
-
-
-    private string BuildPromoDetailsQuery(string? orderByClause)
-    {
-        var sql = @"SELECT p.PromoId, p.StartDate, p.EndDate, t.TacticId, t.TacticType
-                    FROM Promotions p
-                    JOIN Tactics t ON p.TacticId = t.TacticId";
-        if (orderByClause != null)
-            sql += $" ORDER BY {orderByClause}";
-        return sql;
-    }
-
-    private async Task<Dictionary<long, IEnumerable<Item>>> GetPromoItems(IDbConnection connection)
-    {
-        var itemRows = await connection.QueryAsync<(long PromoId, long Id, string Name)>(
-            @"SELECT pi.PromoId, i.ItemId AS Id, i.ItemName AS Name
-              FROM PromoItems pi
-              JOIN Items i ON pi.ItemId = i.ItemId
-              ORDER BY Name");
-        return itemRows.GroupBy(r => r.PromoId)
-                   .ToDictionary(
-                       g => g.Key,
-                       g => g.Select(i => new Item { Id = i.Id, Name = i.Name })
-                   );
-    }
-
-    private async Task<Dictionary<long, IEnumerable<Store>>> GetPromoStores(IDbConnection connection)
-    {
-        var storeRows = await connection.QueryAsync<(long PromoId, long Id, string Name)>(
-            @"SELECT ps.PromoId, s.StoreId AS Id, s.StoreName AS Name
-              FROM PromoStores ps
-              JOIN Stores s ON ps.StoreId = s.StoreId
-              ORDER BY Name");
-
-        return storeRows.GroupBy(r => r.PromoId)
-                   .ToDictionary(
-                       g => g.Key,
-                       g => g.Select(s => new Store { Id = s.Id, Name = s.Name })
-                   );
-    }
-
-    private List<PromotionResponse> BuildPromotionResponses(
-        IEnumerable<PromotionDetails> promotions,
-        Dictionary<long, IEnumerable<Item>> promoItems,
-        Dictionary<long, IEnumerable<Store>> promoStores)
-    {
-        return promotions.Select(p => new PromotionResponse
-        {
-            PromoId = p.PromoId,
-            StartTime = p.StartDate,
-            EndTime = p.EndDate,
-            Tactic = new Tactic
-            {
-                TacticId = p.TacticId,
-                Type = p.TacticType
-            },
-            Items = promoItems.GetValueOrDefault(p.PromoId)?.ToList() ?? new List<Item>(),
-            Stores = promoStores.GetValueOrDefault(p.PromoId)?.ToList() ?? new List<Store>()
-        }).ToList();
     }
 
     private List<PromotionResponse> SortPromotions(List<PromotionResponse> promotions, string sortBy, string sortOrder)
@@ -93,29 +43,80 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         return sortBy.ToLower() switch
         {
             "items" => (sortOrder == "asc"
-                ? promotions.OrderBy(p => string.Join(",", p.Items.Select(i => i.Name)))
-                : promotions.OrderByDescending(p => string.Join(",", p.Items.Select(i => i.Name)))
-            ).ToList(),
+                    ? promotions.OrderBy(p => string.Join(",", p.Items.Select(i => i.Name)))
+                    : promotions.OrderByDescending(p => string.Join(",", p.Items.Select(i => i.Name)))
+                ).ToList(),
 
             "stores" => (sortOrder == "asc"
-                ? promotions.OrderBy(p => string.Join(",", p.Stores.Select(s => s.Name)))
-                : promotions.OrderByDescending(p => string.Join(",", p.Stores.Select(s => s.Name)))
-            ).ToList(),
+                    ? promotions.OrderBy(p => string.Join(",", p.Stores.Select(s => s.Name)))
+                    : promotions.OrderByDescending(p => string.Join(",", p.Stores.Select(s => s.Name)))
+                ).ToList(),
 
             _ => promotions
         };
     }
 
-    public async Task<IEnumerable<PromotionResponse>> GetAllPromotions(string sortBy, string sortOrder)
+    public async Task<IEnumerable<PromotionResponse>> GetPromotionsBy(PromoFilterRequest request)
     {
         using var connection = CreateConnection();
 
-        var promotions = await FetchPromotions(connection, sortBy, sortOrder);
-        var promoItems = await GetPromoItems(connection);
-        var promoStores = await GetPromoStores(connection);
+        var sql = @"
+        SELECT DISTINCT p.*
+        FROM Promotions p
+        LEFT JOIN PromoItems pi ON p.PromoId = pi.PromoId
+        LEFT JOIN Items i ON pi.ItemId = i.ItemId
+        LEFT JOIN PromoStores ps ON p.PromoId = ps.PromoId
+        LEFT JOIN Stores s ON ps.StoreId = s.StoreId
+        LEFT JOIN Tactics t ON p.TacticId = t.TacticId
+        WHERE 1=1";
 
-        var promotionData = BuildPromotionResponses(promotions, promoItems, promoStores);
-        return SortPromotions(promotionData, sortBy, sortOrder);
+        var parameters = new DynamicParameters();
+
+        if (request.Filters != null && request.Filters.Any())
+        {
+            foreach (var filter in request.Filters)
+            {
+                var whereClause = GetWhereClauseForFilter(filter, parameters);
+                sql += $" AND {whereClause}";
+
+            }
+        }
+
+        if (!string.IsNullOrEmpty(request.SortBy))
+        {
+            var validSortColumns = GetValidSortColumns();
+            if (!string.IsNullOrEmpty(request.SortBy) &&
+                validSortColumns.TryGetValue(request.SortBy, out var sortColumn))
+            {
+                sql += $" ORDER BY {sortColumn} {(request.SortOrder?.ToUpper() == "DESC" ? "DESC" : "ASC")}";
+            }
+        }
+
+        Console.WriteLine("Generated SQL---------------------------------------------------------------: " + sql);
+
+        var promotions = (await connection.QueryAsync<Promotion>(sql, parameters)).ToList();
+
+        if (!promotions.Any())
+            return new List<PromotionResponse>();
+
+        var promoIds = promotions.Select(p => p.PromoId).ToList();
+        var tacticIds = promotions.Select(p => p.TacticId).Distinct().ToList();
+
+        var itemsDict = await GetItemsForPromos(connection, promoIds);
+        var storesDict = await GetStoresForPromos(connection, promoIds);
+        var tacticsDict = await GetTacticsForPromos(connection, tacticIds);
+
+        var promotionData = promotions.Select(promo => new PromotionResponse
+        {
+            PromoId = promo.PromoId,
+            StartDate = promo.StartDate,
+            EndDate = promo.EndDate,
+            Items = itemsDict.TryGetValue(promo.PromoId, out var items) ? items : new List<Item>(),
+            Stores = storesDict.TryGetValue(promo.PromoId, out var stores) ? stores : new List<Store>(),
+            Tactic = tacticsDict.TryGetValue(promo.TacticId, out var tactic) ? tactic : new Tactic()
+        }).ToList();
+
+        return SortPromotions(promotionData, request.SortBy, request.SortOrder);
     }
 
     public async Task<long> AddPromotion(Promo dto)
@@ -147,7 +148,8 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
         VALUES (@StartDate, @EndDate, @TacticId);
         SELECT last_insert_rowid();";
 
-        return await connection.ExecuteScalarAsync<long>(insertPromo, new { dto.StartDate, dto.EndDate, dto.TacticId }, tx);
+        return await connection.ExecuteScalarAsync<long>(insertPromo, new { dto.StartDate, dto.EndDate, dto.TacticId },
+            tx);
     }
 
     private async Task InsertPromoItems(IDbConnection connection, IDbTransaction tx, long promoId, IEnumerable<long>? itemIds)
@@ -161,7 +163,9 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             await connection.ExecuteAsync(insertItem, new { PromoId = promoId, ItemId = itemId }, tx);
         }
     }
-    private async Task InsertPromoStores(IDbConnection connection, IDbTransaction tx, long promoId, IEnumerable<long>? storeIds)
+
+    private async Task InsertPromoStores(IDbConnection connection, IDbTransaction tx, long promoId,
+        IEnumerable<long>? storeIds)
     {
         if (storeIds is null) return;
 
@@ -172,6 +176,7 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             await connection.ExecuteAsync(insertStore, new { PromoId = promoId, StoreId = storeId }, tx);
         }
     }
+
     public async Task<long> DeletePromotion(long promoId)
     {
         using var connection = CreateConnection();
@@ -183,7 +188,8 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             await connection.ExecuteAsync("DELETE FROM PromoItems WHERE PromoId = @promoId", new { promoId }, tx);
             await connection.ExecuteAsync("DELETE FROM PromoStores WHERE PromoId = @promoId", new { promoId }, tx);
 
-            var affected = await connection.ExecuteAsync("DELETE FROM Promotions WHERE PromoId = @promoId", new { promoId }, tx);
+            var affected = await connection.ExecuteAsync("DELETE FROM Promotions WHERE PromoId = @promoId",
+                new { promoId }, tx);
 
             if (affected == 0)
             {
@@ -204,107 +210,47 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
     private Dictionary<string, string> GetValidSortColumns()
     {
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-    {
-        { "promoid", "p.PromoId" },
-        { "starttime", "p.StartDate" },
-        { "endtime", "p.EndDate" },
-        { "tactic", "t.TacticType" }
-    };
-    }
-
-    public async Task<IEnumerable<PromotionResponse>> FilterPromotions(string field, List<string> values, string? sortBy = null, string sortOrder = "asc")
-    {
-        using var connection = CreateConnection();
-
-        string orderClause = "";
-        Dictionary<string, string> validSortColumns = GetValidSortColumns();
-
-        if (!string.IsNullOrEmpty(sortBy) && validSortColumns.TryGetValue(sortBy, out var sortColumn))
         {
-            orderClause = $" ORDER BY {sortColumn} {(sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase) ? "DESC" : "ASC")}";
-        }
-
-        string query = GetQueryForFiltering(field, orderClause);
-
-        List<Promotion> promos;
-        if (field.Equals("starttime", StringComparison.OrdinalIgnoreCase) || field.Equals("endtime", StringComparison.OrdinalIgnoreCase))
-        {
-            promos = (await connection.QueryAsync<Promotion>(query, new { Start = values[0], End = values[1] })).ToList();
-        }
-        else
-        {
-            promos = (await connection.QueryAsync<Promotion>(query, new { Values = values })).ToList();
-        }
-
-        if (!promos.Any())
-            return new List<PromotionResponse>();
-
-        var promoIds = promos.Select(p => p.PromoId).ToList();
-        var tacticIds = promos.Select(p => p.TacticId).Distinct().ToList();
-
-        var itemsDict = await GetItemsForPromos(connection, promoIds);
-        var storesDict = await GetStoresForPromos(connection, promoIds);
-        var tacticsDict = await GetTacticsForPromos(connection, tacticIds);
-
-        var filteredPromo = promos.Select(promo => new PromotionResponse
-        {
-            PromoId = promo.PromoId,
-            StartTime = promo.StartDate,
-            EndTime = promo.EndDate,
-            Items = itemsDict.TryGetValue(promo.PromoId, out var items) ? items : new List<Item>(),
-            Stores = storesDict.TryGetValue(promo.PromoId, out var stores) ? stores : new List<Store>(),
-            Tactic = tacticsDict.TryGetValue(promo.TacticId, out var tactic) ? tactic : new Tactic()
-        }).ToList();
-
-        return SortPromotions(filteredPromo, sortBy ?? string.Empty, sortOrder);
-    }
-
-    private static string GetQueryForFiltering(string field, string orderClause)
-    {
-        return field.ToLower() switch
-        {
-            "promoid" => @$"
-        SELECT p.*
-        FROM Promotions p
-        JOIN Tactics t ON p.TacticId = t.TacticId
-        WHERE p.PromoId IN @Values {orderClause}",
-
-            "items" => @$"
-        SELECT DISTINCT p.*
-        FROM Promotions p
-        JOIN PromoItems pi ON p.PromoId = pi.PromoId
-        JOIN Items i ON pi.ItemId = i.ItemId
-        JOIN Tactics t ON p.TacticId = t.TacticId
-        WHERE i.ItemName IN @Values {orderClause}",
-
-            "stores" => @$"
-        SELECT DISTINCT p.*
-        FROM Promotions p
-        JOIN PromoStores ps ON p.PromoId = ps.PromoId
-        JOIN Stores s ON ps.StoreId = s.StoreId
-        JOIN Tactics t ON p.TacticId = t.TacticId
-        WHERE s.StoreName IN @Values {orderClause}",
-
-            "tactic" => @$"
-        SELECT p.*
-        FROM Promotions p
-        JOIN Tactics t ON p.TacticId = t.TacticId
-        WHERE t.TacticType IN @Values {orderClause}",
-
-            "starttime" => @$"
-        SELECT p.*
-        FROM Promotions p
-        JOIN Tactics t ON p.TacticId = t.TacticId
-        WHERE StartDate BETWEEN @Start AND @End {orderClause}",
-
-            "endtime" => @$"
-        SELECT p.*
-        FROM Promotions p
-        JOIN Tactics t ON p.TacticId = t.TacticId
-        WHERE EndDate BETWEEN @Start AND @End {orderClause}",
-
-            _ => throw new ArgumentException($"Invalid filter field {field}")
+            { "promoid", "p.PromoId" },
+            { "startdate", "p.StartDate" },
+            { "enddate", "p.EndDate" },
+            { "tactic", "t.TacticType" }
         };
+    }
+
+    private static string GetWhereClauseForFilter(PromoFilterModel filter, DynamicParameters parameters)
+    {
+        switch (filter.Field.ToLower())
+        {
+            case "promoid":
+                parameters.Add("@PromoIds", filter.Values.Select(int.Parse).ToList());
+                return "p.PromoId IN @PromoIds";
+
+            case "items":
+                parameters.Add("@ItemNames", filter.Values);
+                return "i.ItemName IN @ItemNames";
+
+            case "stores":
+                parameters.Add("@StoreNames", filter.Values);
+                return "s.StoreName IN @StoreNames";
+
+            case "tactic":
+                parameters.Add("@TacticTypes", filter.Values);
+                return "t.TacticType IN @TacticTypes";
+
+            case "startdate":
+                parameters.Add("@StartFrom", filter.Values[0]);
+                parameters.Add("@StartTo", filter.Values[1]);
+                return "p.StartDate BETWEEN @StartFrom AND @StartTo";
+
+            case "enddate":
+                parameters.Add("@EndFrom", filter.Values[0]);
+                parameters.Add("@EndTo", filter.Values[1]);
+                return "p.EndDate BETWEEN @EndFrom AND @EndTo";
+
+            default:
+                throw new ArgumentException($"Invalid filter field {filter.Field}");
+        }
     }
 
     private async Task<Dictionary<long, Tactic>> GetTacticsForPromos(IDbConnection connection, List<long> tacticIds)
@@ -334,6 +280,7 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
                 g => g.Select(s => new Store { Id = s.StoreId, Name = s.StoreName }).ToList()
             );
     }
+
     private async Task<Dictionary<long, List<Item>>> GetItemsForPromos(IDbConnection connection, List<long> promoIds)
     {
         var items = await connection.QueryAsync<(long PromoId, long ItemId, string ItemName)>(
@@ -376,14 +323,13 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
 
             if (rowsAffected == 0)
             {
-                tx.Rollback();
                 return null;
             }
 
-
             if (request.ItemIds != null)
             {
-                await connection.ExecuteAsync("DELETE FROM PromoItems WHERE PromoId = @PromoId", new { request.PromoId }, tx);
+                await connection.ExecuteAsync("DELETE FROM PromoItems WHERE PromoId = @PromoId",
+                    new { request.PromoId }, tx);
 
                 const string insertItemSql = "INSERT INTO PromoItems (PromoId, ItemId) VALUES (@PromoId, @ItemId)";
                 foreach (var itemId in request.ItemIds)
@@ -394,7 +340,8 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
 
             if (request.StoreIds != null)
             {
-                await connection.ExecuteAsync("DELETE FROM PromoStores WHERE PromoId = @PromoId", new { request.PromoId }, tx);
+                await connection.ExecuteAsync("DELETE FROM PromoStores WHERE PromoId = @PromoId",
+                    new { request.PromoId }, tx);
 
                 const string insertStoreSql = "INSERT INTO PromoStores (PromoId, StoreId) VALUES (@PromoId, @StoreId)";
                 foreach (var storeId in request.StoreIds)
@@ -405,7 +352,8 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
 
             tx.Commit();
 
-            return (await GetAllPromotions("promoid", "asc")).FirstOrDefault(p => p.PromoId == request.PromoId);
+            Console.WriteLine("Promo Edit Done👍");
+            return await GetPromotionById(request.PromoId);
         }
         catch
         {
@@ -413,5 +361,6 @@ public class PromoRepository(IConfiguration configuration) : IPromoRepository
             throw;
         }
     }
+
 
 }
