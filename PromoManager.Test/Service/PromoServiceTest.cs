@@ -67,7 +67,7 @@ public class PromoServiceTest
         };
 
         _mockRepo.Setup(repo => repo.AddPromotion(promoDto))
-            .ReturnsAsync(10); // Returning new promoId
+            .ReturnsAsync(10);
 
         var result = await _promoService.AddPromotion(promoDto);
 
@@ -86,5 +86,39 @@ public class PromoServiceTest
         var result = await _promoService.DeletePromotion(promoId);
 
         Assert.AreEqual(5, result);
+    }
+    
+    [Test]
+    public void ShouldThrowExceptionWhenStartDateIsBeforeToday()
+    {
+        var response = new Promo
+        {
+            ItemIds = new List<long> { 1, 2 },
+            StoreIds = new List<long> { 1, 4 },
+            StartDate = DateTime.UtcNow.AddDays(-1),
+            EndDate = DateTime.UtcNow.AddDays(1),
+            TacticId = 1,
+        };
+        
+        var exception = Assert.ThrowsAsync<ArgumentException>(async () => await _promoService.AddPromotion(response));
+        
+        Assert.AreEqual("Start date must be today or in the future.", exception.Message);
+    }
+    
+    [Test]
+    public void ShouldThrowExceptionWhenEndDateIsBeforeStartDate()
+    {
+        var response = new Promo
+        {
+            ItemIds = new List<long> { 1, 2 },
+            StoreIds = new List<long> { 1, 4 },
+            StartDate = DateTime.UtcNow.AddDays(1),
+            EndDate = DateTime.UtcNow.AddDays(-1),
+            TacticId = 1,
+        };
+        
+        var exception = Assert.ThrowsAsync<ArgumentException>(async () => await _promoService.AddPromotion(response));
+        
+        Assert.AreEqual("End date must be the same or after the start date.", exception.Message);
     }
 }

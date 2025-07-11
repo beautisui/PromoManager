@@ -1,7 +1,6 @@
 using Moq;
 using PromoManager.Models.Entities;
 using PromoManager.Repository;
-using PromoManager.Service;
 using PromoManager.Services;
 
 namespace PromoManager.Test.Service;
@@ -12,7 +11,7 @@ public class LookupServiceTest
 {
     private Mock<ILookupRepository> _mockRepo;
     private LookupService _lookupService;
-
+    
     [SetUp]
 public void Setup()
 {
@@ -84,5 +83,6 @@ public async Task GetPromoIdsShouldReturnAllPromoIds()
 
     Assert.AreEqual(expectedIds, result);
 }
+
 
 }

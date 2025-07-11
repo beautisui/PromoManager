@@ -16,5 +16,7 @@
     &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.LookupServiceTest.GetTacticsShouldReturnAllTactics&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.LookupServiceTest.GetStoresShouldReturnAllStores&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.LookupServiceTest.GetItemsShouldReturnAllItems&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.LookupServiceTest.ShouldThrowExceptionWhenStartDateIsBeforeToday&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::85AA280C-65A7-4CA0-A368-683FB785ECC8::net8.0::PromoManager.Test.Service.LookupServiceTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
