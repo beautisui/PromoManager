@@ -107,8 +107,7 @@ npm run dev
 
 | **Path**                       | **Method** | **Description**                                                   | **Query Parameters**                     |
 | ------------------------------ | ---------- | ----------------------------------------------------------------- | ---------------------------------------- |
-| `/api/promotion`               | `GET`      | Retrieve all promotions with optional sorting                     | `sortBy`, `sortOrder`                    |
-| `/api/promotion/filter`        | `GET`      | Filter promotions based on field and values with optional sorting | `field`, `values`, `sortBy`, `sortOrder` |
+| `/api/promotion/search`               | `POST`      |  For getting all promotion for optional filter and sorting |          -    |
 | `/api/promotion`               | `POST`     | Create a new promotion                                            | –                                        |
 | `/api/promotion/{promoId}`          | `PATCH`    | Update an existing promotion                                      | –                                        |
 | `/api/promotion/{promoId}`          | `DELETE`   | Delete a promotion                                                | –                                        |
@@ -118,6 +117,28 @@ npm run dev
 | `/api/lookup/availableOptions` | `GET`      | Fetch list of items, stores, tactics                              | –                                        |
 
 ---
+
+  **JSON Body for `/api/promotion/search`**:
+
+```json
+{
+  "filters": [
+    { "field": "items", "values": ["pen", "pencil"] },
+    { "field": "stores", "values": ["store1", "store2"] }
+  ],
+  "sortBy": "promoId",
+  "sortOrder": "asc"
+}
+
+or
+
+{
+  "filters": [],
+  "sortBy": "promoId",
+  "sortOrder": "asc"
+}
+
+```
 
 ## 📊 Promotions Database Design
 
@@ -305,32 +326,3 @@ This document compiles all acceptance criteria for the key promotion features.
 ![Promo Manager Architecture Diagram](./PromoManager/wwwroot/PromoDiargram.png)
 
 ---
-
-| **Path** | **Method** | **Description** |
-|-|-|-|
-|`/api/promotion/search` | POST | For getting all promotion where you can apply soring , filtering |
-|`/api/promotion`| POST | For creating a Promotion|
-
----
-
-  **JSON Body for `/api/promotion/search`**:
-
-```json
-{
-  "filters": [
-    { "field": "items", "values": ["pen", "pencil"] },
-    { "field": "stores", "values": ["store1", "store2"] }
-  ],
-  "sortBy": "promoId",
-  "sortOrder": "asc"
-}
-
-or
-
-{
-  "filters": [],
-  "sortBy": "promoId",
-  "sortOrder": "asc"
-}
-
-```
