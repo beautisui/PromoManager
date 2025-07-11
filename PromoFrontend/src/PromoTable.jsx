@@ -88,7 +88,8 @@ export const PromoTable = ({
             if (!res.ok) throw new Error("Failed to update promo");
 
             setEditPromo(null);
-            onSave();
+            onSave(sortBy, sortOrder, createFilterBody(selectedOptions));
+
         } catch (err) {
             console.error("Edit save failed:", err);
         }
