@@ -52,7 +52,12 @@ const PromoRow = ({ promo, onDelete, onEdit }) => (
         <td>{promo.tactic.type}</td>
         <td>
             <button onClick={() => onEdit(promo)}>Edit</button>
-            <button onClick={() => onDelete(promo.promoId)}>Delete</button>
+            <button onClick={() => {
+                const confirmDelete = window.confirm("Are you sure to delete the selected promotion?");
+                if (confirmDelete) {
+                    onDelete(promo.promoId);
+                }
+            }}>Delete</button>
         </td>
     </tr>
 );
