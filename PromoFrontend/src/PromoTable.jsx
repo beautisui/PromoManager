@@ -20,6 +20,28 @@ const separateByComma = (arr, key = 'name') =>
         .map(obj => obj[key])
         .join(', ');
 
+const extractFilterOptions = async (field) => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    try {
+        if (field === 'startDate' || field === 'endDate') return;
+
+        const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
+        if (!response.ok) throw new Error("Failed to fetch filter options");
+
+        const options = await response.json();
+        switch (field) {
+            case 'promoId': return options.map(o => o.id.toString());
+            case 'items': return options.map(i => i.name);
+            case 'stores': return options.map(s => s.name);
+            case 'tactic': return options.map(t => t.type);
+            default: return [];
+        }
+    } catch (error) {
+        console.error("Error fetching filter options:", error);
+        return [];
+    }
+};
+
 const PromoRow = ({ promo, onDelete, onEdit }) => (
     <tr>
         <td>{promo.promoId}</td>
@@ -47,8 +69,8 @@ export const PromoTable = ({
     const [activeFilterColumn, setActiveFilterColumn] = useState(null);
     const [filterOptions, setFilterOptions] = useState([]);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-    const [activeFilterField, setActiveFilterField] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState({});
+    const [tempSelectedOptions, setTempSelectedOptions] = useState({});
     const [editPromo, setEditPromo] = useState(null);
 
     const handleSorting = async (field) => {
@@ -63,6 +85,7 @@ export const PromoTable = ({
 
         onSave(field, newSortOrder, createFilterBody(selectedOptions));
     }
+
     const handleDeletePromo = async (promoId) => {
         try {
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -95,57 +118,37 @@ export const PromoTable = ({
         }
     };
 
-    const extractFilterOptions = async (field) => {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        try {
-            if (field === 'startDate' || field === 'endDate') return;
-
-            const response = await fetch(`${baseUrl}/api/lookup/filterOptions?field=${field}`);
-            if (!response.ok) throw new Error("Failed to fetch filter options");
-
-            const options = await response.json();
-            switch (field) {
-                case 'promoId': return options.map(o => o.id.toString());
-                case 'items': return options.map(i => i.name);
-                case 'stores': return options.map(s => s.name);
-                case 'tactic': return options.map(t => t.type);
-                default: return [];
-            }
-        } catch (error) {
-            console.error("Error fetching filter options:", error);
-            return [];
-        }
-    };
-
     const handleFilterClick = async (field, e) => {
         const options = await extractFilterOptions(field);
         const rect = e.target.getBoundingClientRect();
         setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
         setFilterOptions(options);
         setActiveFilterColumn(field);
+        setTempSelectedOptions(prev => ({
+            ...prev,
+            [field]: selectedOptions[field] || []
+        }));
     };
 
     const handleApplyFilter = async (field, optionsSelected) => {
         if (!field || !optionsSelected || optionsSelected.length === 0) {
-
             setSelectedOptions(prev => {
-                const updated = { ...prev, [field]: [] };
-                Object.keys(updated).forEach(key => {
-                    if (!updated[key] || updated[key].length === 0) {
-                        delete updated[key];
-                    }
-                });
+                const updated = { ...prev };
+                delete updated[field];
                 return updated;
             });
-            onSave(sortBy, sortOrder, createFilterBody(selectedOptions));
+            onSave(sortBy, sortOrder, createFilterBody(tempSelectedOptions));
             return;
         }
 
         try {
-            onSave(sortBy, sortOrder, createFilterBody(selectedOptions));
-
-            setActiveFilterField(field);
             setSelectedOptions(prev => ({ ...prev, [field]: optionsSelected }));
+
+            onSave(sortBy, sortOrder, createFilterBody({
+                ...selectedOptions,
+                [field]: optionsSelected
+            }));
+
         } catch (error) {
             console.error("Error applying filter:", error);
         }
@@ -171,7 +174,7 @@ export const PromoTable = ({
 
             {Object.values(selectedOptions).some(v => v && v.length > 0) && (
                 <div className="active-filter-info">
-                    Filtering based on:  <strong>
+                    Filtering based on: <strong>
                         {Object.entries(selectedOptions)
                             .filter(([k, v]) => v && v.length > 0)
                             .map(([k]) => k)
@@ -179,6 +182,7 @@ export const PromoTable = ({
                     </strong>
                 </div>
             )}
+
 
             <table className="promo-table">
                 <thead>
@@ -215,12 +219,13 @@ export const PromoTable = ({
                     field={activeFilterColumn}
                     options={filterOptions}
                     onApply={handleApplyFilter}
-                    onClose={() => { setActiveFilterColumn(null); }}
+                    onClose={() => setActiveFilterColumn(null)}
                     position={dropdownPosition}
-                    selectedOptions={selectedOptions}
                     setSelectedOptions={setSelectedOptions}
-                    setActiveFilterField={setActiveFilterField}
+                    tempSelectedOptions={tempSelectedOptions}
+                    setTempSelectedOptions={setTempSelectedOptions}
                 />
+
             )}
         </>
     );
