@@ -42,7 +42,7 @@ h1 {
 }
 
 .reset-btn:hover {
-  color: blue;
+  color: blue;  
 }
 
 .button-reset-container {
@@ -54,4 +54,9 @@ h1 {
 
 .reset-btn:active {
   transform: scale(0.9);
+}
+
+.add-export-container {
+  display: flex;
+  align-items: center;
 }

@@ -3,6 +3,7 @@ import { PromoTable } from './PromoTable';
 import { AddPromoBtn } from './AddPromoBtn';
 import './css/App.css';
 import { ResetIcon } from './Icons';
+import { ExportIcon } from './Icons';
 
 const App = () => {
   const [promotions, setPromotions] = useState([]);
@@ -47,17 +48,23 @@ const App = () => {
       .catch((err) => console.error("Failed to fetch options", err));
   }, []);
 
+
+
   return (
     <main>
       <h1>Promo Manager</h1>
 
       <div className="button-reset-container">
-        <AddPromoBtn
-          promoStatus={addPromoStatus}
-          setAddPromoStatus={setAddPromoStatus}
-          onPromoSave={fetchPromotions}
-          options={options}
-        />
+
+        <div className="add-export-container">
+          <AddPromoBtn
+            promoStatus={addPromoStatus}
+            setAddPromoStatus={setAddPromoStatus}
+            onPromoSave={fetchPromotions}
+            options={options}
+          />
+          <button>{ExportIcon}Export</button>
+        </div>
 
         <ResetIcon
           className="reset-btn"
@@ -74,6 +81,8 @@ const App = () => {
         setSortOrder={setSortOrder}
         options={options}
       />
+
+
     </main>
   );
 };

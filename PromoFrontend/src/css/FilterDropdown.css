@@ -1,6 +1,4 @@
 .filter-dropdown {
-    display: block;
-
   position: absolute;
   background: white;
   border: 1px solid #ddd;
@@ -10,10 +8,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   max-height: 300px;
   overflow-y: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
 .filter-dropdown h4 {
