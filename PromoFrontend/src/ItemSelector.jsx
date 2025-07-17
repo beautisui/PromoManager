@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 
 const dbg = (x) => {
     console.log("--------------------->", x);
@@ -14,18 +15,34 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
     };
 
     const getItemNames = () => {
-        return items
+        const itemNames = items
             .filter(item => selectedItems.includes(item.id))
             .map(item => item.name)
-            .join(', ');
+
+
+        const formatedItems = itemNames.length > 3
+            ? `${itemNames.slice(0, 3).join(', ')} ...`
+            : itemNames.join(', ');
+
+
+        return { formatedItems, allItems: itemNames }
     };
+
+    const { formatedItems, allItems } = getItemNames();
 
     return (
         <div className="dropdown">
             <label>Items:</label>
-            <div className="dropdown-box" onClick={() => setShowDropdown(!showDropdown)}>
-                {getItemNames() || "Select Items"}
+
+            <div className="dropdown-box"
+                onClick={() => setShowDropdown(!showDropdown)}
+                data-tooltip-id="itemTooltip"
+                data-tooltip-content={allItems}
+            >
+                {formatedItems || "Select Items"}
             </div>
+            <Tooltip id="itemTooltip" />
+
             {showDropdown ? (
                 <div className="dropdown-list">
                     {items.map(item => (
