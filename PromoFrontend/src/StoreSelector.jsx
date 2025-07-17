@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 
 const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -10,18 +11,33 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
     };
 
     const getStoreNames = () => {
-        return stores
+        const storeNames = stores
             .filter(store => selectedStores.includes(store.id))
-            .map(store => store.name)
-            .join(', ');
+            .map(store => store.name);
+
+        const formattedStores = storeNames.length > 3
+            ? `${storeNames.slice(0, 3).join(', ')} ...`
+            : storeNames.join(', ');
+
+        return { formattedStores, allStores: storeNames.join(', ') };
     };
+
+    const { formattedStores, allStores } = getStoreNames();
 
     return (
         <div className="dropdown">
             <label>Stores:</label>
-            <div className="dropdown-box" onClick={() => setShowDropdown(!showDropdown)}>
-                {getStoreNames() || 'Select Stores'}
+            <div
+                className="dropdown-box"
+                onClick={() => setShowDropdown(!showDropdown)}
+                data-tooltip-id="storeTooltip"
+                data-tooltip-content={allStores}
+            >
+                {formattedStores || 'Select Stores'}
             </div>
+
+            <Tooltip id="storeTooltip" />
+
             {showDropdown && (
                 <div className="dropdown-list">
                     {stores.map(store => (
