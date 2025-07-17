@@ -15,20 +15,11 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
     };
 
     const getItemNames = () => {
-        const itemNames = items
+        return items
             .filter(item => selectedItems.includes(item.id))
             .map(item => item.name)
-
-
-        const formatedItems = itemNames.length > 3
-            ? `${itemNames.slice(0, 3).join(', ')} ...`
-            : itemNames.join(', ');
-
-
-        return { formatedItems, allItems: itemNames }
+            .join(', ');
     };
-
-    const { formatedItems, allItems } = getItemNames();
 
     return (
         <div className="dropdown">
@@ -37,9 +28,9 @@ const ItemSelector = ({ items, selectedItems, setSelectedItems }) => {
             <div className="dropdown-box"
                 onClick={() => setShowDropdown(!showDropdown)}
                 data-tooltip-id="itemTooltip"
-                data-tooltip-content={allItems}
+                data-tooltip-content={getItemNames()}
             >
-                {formatedItems || "Select Items"}
+                {getItemNames() || "Select Items"}
             </div>
             <Tooltip id="itemTooltip" />
 

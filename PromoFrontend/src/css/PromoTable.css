@@ -5,6 +5,15 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: medium;
+    table-layout: fixed;
+}
+
+.ellipsis-column {
+    max-width: 20%;
+    min-width: 10%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .promo-table th,

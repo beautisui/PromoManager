@@ -6,14 +6,27 @@ h2 {
 .dropdown {
     position: relative;
     margin-bottom: 1rem;
+    width: 100%;
+    max-width: 3dvb;
+    min-width: 200px;
+
+    box-sizing: border-box;
 }
 
 .dropdown-box {
+    display: block;
+    width: 100%;
+    min-width: 300px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 6px;
     background-color: #f9f9f9;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .dropdown-list {
@@ -37,6 +50,7 @@ input[type="date"] {
     margin-bottom: 1rem;
     border-radius: 6px;
     border: 1px solid #ccc;
+
 }
 
 button {

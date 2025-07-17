@@ -3,6 +3,7 @@ import FilterDropdown from './FilterDropdown';
 import EditPromo from './EditPromo';
 import './css/PromoTable.css';
 import { FilterIcon } from './Icons';
+import { Tooltip } from 'react-tooltip';
 
 const createFilterBody = (selectedOptions) => {
     return Object.entries(selectedOptions)
@@ -42,25 +43,44 @@ const extractFilterOptions = async (field) => {
     }
 };
 
-const PromoRow = ({ promo, onDelete, onEdit }) => (
-    <tr>
-        <td>{promo.promoId}</td>
-        <td>{separateByComma(promo.items)}</td>
-        <td>{separateByComma(promo.stores)}</td>
-        <td>{promo.startDate.slice(0, 10)}</td>
-        <td>{promo.endDate.slice(0, 10)}</td>
-        <td>{promo.tactic.type}</td>
-        <td>
-            <button onClick={() => onEdit(promo)}>Edit</button>
-            <button onClick={() => {
-                const confirmDelete = window.confirm("Are you sure to delete the selected promotion?");
-                if (confirmDelete) {
-                    onDelete(promo.promoId);
-                }
-            }}>Delete</button>
-        </td>
-    </tr>
-);
+const PromoRow = ({ promo, onDelete, onEdit }) => {
+    return (
+        <tr>
+            <td>{promo.promoId}</td>
+
+            <td className="ellipsis-column"
+                data-tooltip-id='itemsToolTip'
+                data-tooltip-content={separateByComma(promo.items)}>
+                {separateByComma(promo.items)}
+                <Tooltip id='itemsToolTip' />
+            </td>
+
+            <td className="ellipsis-column"
+                data-tooltip-id='storesToolTip'
+                data-tooltip-content={separateByComma(promo.stores)}>
+                {separateByComma(promo.stores)}
+                <Tooltip id='storesToolTip' />
+            </td>
+
+            <td>{promo.startDate.slice(0, 10)}</td>
+            <td>{promo.endDate.slice(0, 10)}</td>
+            <td>{promo.tactic.type}</td>
+            <td>
+                <button onClick={() => onEdit(promo)}>Edit</button>
+                <button
+                    onClick={() => {
+                        const confirmDelete = window.confirm("Are you sure to delete the selected promotion?");
+                        if (confirmDelete) {
+                            onDelete(promo.promoId);
+                        }
+                    }}>
+                    Delete
+                </button>
+            </td>
+
+        </tr>
+    );
+};
 
 export const PromoTable = ({
     promotions,

@@ -11,18 +11,11 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
     };
 
     const getStoreNames = () => {
-        const storeNames = stores
+        return stores
             .filter(store => selectedStores.includes(store.id))
-            .map(store => store.name);
-
-        const formattedStores = storeNames.length > 3
-            ? `${storeNames.slice(0, 3).join(', ')} ...`
-            : storeNames.join(', ');
-
-        return { formattedStores, allStores: storeNames.join(', ') };
+            .map(store => store.name)
+            .join(', ');
     };
-
-    const { formattedStores, allStores } = getStoreNames();
 
     return (
         <div className="dropdown">
@@ -31,9 +24,9 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
                 className="dropdown-box"
                 onClick={() => setShowDropdown(!showDropdown)}
                 data-tooltip-id="storeTooltip"
-                data-tooltip-content={allStores}
+                data-tooltip-content={getStoreNames()}
             >
-                {formattedStores || 'Select Stores'}
+                {getStoreNames() || 'Select Stores'}
             </div>
 
             <Tooltip id="storeTooltip" />
