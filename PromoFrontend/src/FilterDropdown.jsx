@@ -2,21 +2,12 @@ import { useEffect, useRef } from 'react';
 import './css/FilterDropdown.css';
 import DateInput from './DateInput';
 
-const FilterDropdown = ({
-    field,
-    options,
-    onApply,
-    onClose,
-    position,
-    setSelectedOptions,
-    tempSelectedOptions,
-    setTempSelectedOptions
-}) => {
+const FilterDropdown = ({ field, options, onApply, onClose, position, selectedOptions, setSelectedOptions, setActiveFilterField }) => {
     const dropdownRef = useRef(null);
-    const currentOptions = tempSelectedOptions[field] || [];
+    const currentOptions = selectedOptions[field] || [];
 
     const handleOptionChange = (option) => {
-        setTempSelectedOptions(prev => ({
+        setSelectedOptions(prev => ({
             ...prev,
             [field]: prev[field]?.includes(option)
                 ? prev[field].filter(o => o !== option)
@@ -25,22 +16,17 @@ const FilterDropdown = ({
     };
 
     const handleApply = () => {
-        const optionsForField = tempSelectedOptions[field] || [];
-
+        const optionsForField = selectedOptions[field] || [];
         if (optionsForField.length === 0) {
-            setSelectedOptions(prev => {
-                const updated = { ...prev };
-                delete updated[field];
-                return updated;
-            });
+            setSelectedOptions(prev => ({ ...prev, [field]: [] }));
+            setActiveFilterField(null);
             onApply(null, []);
             onClose();
             return;
         }
 
-        setSelectedOptions(prev => ({ ...prev, [field]: optionsForField }));
-
         onApply(field, optionsForField);
+        setSelectedOptions(prev => ({ ...prev, [field]: optionsForField }));
         onClose();
     };
 
@@ -66,19 +52,13 @@ const FilterDropdown = ({
                     <DateInput
                         label="From"
                         value={currentOptions[0] || ''}
-                        onChange={val => setTempSelectedOptions(prev => ({
-                            ...prev,
-                            [field]: [val, currentOptions[1] || '']
-                        }))}                                                                                                                  
+                        onChange={val => setSelectedOptions(prev => ({ ...prev, [field]: [val, currentOptions[1] || ''] }))}
                         max={currentOptions[1]}
                     />
                     <DateInput
                         label="To"
                         value={currentOptions[1] || ''}
-                        onChange={val => setTempSelectedOptions(prev => ({
-                            ...prev,
-                            [field]: [currentOptions[0] || '', val]
-                        }))}
+                        onChange={val => setSelectedOptions(prev => ({ ...prev, [field]: [currentOptions[0] || '', val] }))}
                         min={currentOptions[0]}
                     />
                 </div>
