@@ -17,6 +17,14 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
             .join(', ');
     };
 
+    const handleSelectAll = () => {
+        if (selectedStores.length === stores.length) {
+            setSelectedStores([]);
+            return;
+        }
+        setSelectedStores(stores.map(s => s.id));
+    }
+
     return (
         <div className="dropdown">
             <label>Stores:</label>
@@ -33,6 +41,15 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
 
             {showDropdown && (
                 <div className="dropdown-list">
+                    <div key="select-all">
+                        <input type='checkbox'
+                            id='select-all'
+                            checked={selectedStores.length === stores.length && stores.length > 0}
+                            onChange={handleSelectAll}
+                        />
+                        <label htmlFor="select-all">Select All</label>
+                    </div>
+
                     {stores.map(store => (
                         <div key={store.id}>
                             <input
@@ -45,8 +62,9 @@ const StoreSelector = ({ stores, selectedStores, setSelectedStores }) => {
                         </div>
                     ))}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 

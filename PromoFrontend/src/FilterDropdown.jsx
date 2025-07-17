@@ -85,6 +85,28 @@ const FilterDropdown = ({
                 </div>
             ) : (
                 <ul>
+                    <li key="select-all">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={options.every(o => currentOptions.includes(o))}
+                                onChange={() => {
+                                    if (options.every(o => currentOptions.includes(o))) {
+                                        setTempSelectedOptions(prev => ({
+                                            ...prev,
+                                            [field]: []
+                                        }));
+                                    } else {
+                                        setTempSelectedOptions(prev => ({
+                                            ...prev,
+                                            [field]: options
+                                        }));
+                                    }
+                                }}
+                            />
+                            Select All
+                        </label>
+                    </li>
                     {options.map(option => (
                         <li key={option}>
                             <label>
@@ -98,6 +120,7 @@ const FilterDropdown = ({
                         </li>
                     ))}
                 </ul>
+
             )}
             <div className="dropdown-actions">
                 <button onClick={onClose}>Cancel</button>
