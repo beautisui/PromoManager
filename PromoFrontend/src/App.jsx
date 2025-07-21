@@ -3,54 +3,30 @@ import { PromoTable } from './PromoTable';
 import { AddPromoBtn } from './AddPromoBtn';
 import './css/App.css';
 import { ResetIcon, ExportIcon } from './Icons';
+import * as XLSX from "xlsx";
 
-const downloadPromoCSV = (promotions, filename = "promotions.csv") => {
+const downloadPromoCSV = (promotions, filename = "promotions.xls") => {
   if (!promotions || promotions.length === 0) {
     console.log("No promotions to download.");
     return;
   }
 
-  console.log(promotions);
+  const xlData = promotions.map(promo => ({
+    promoId: promo.promoId,
+    items: promo.items?.map(i => i.name).join(', ') || '',
+    stores: promo.stores?.map(s => s.name).join(', ') || '',
+    startDate: promo.startDate || '',
+    endDate: promo.endDate || '',
+    tactic: promo.tactic?.type || ''
+  }));
 
-  const headers = Object.keys(promotions[0]);
 
-  const csvRows = [];
+  const worksheet = XLSX.utils.json_to_sheet(xlData);
+  const workbook = XLSX.utils.book_new();
 
-  csvRows.push(headers.join(','));
-
-  for (const promo of promotions) {
-    const values = headers.map(header => {
-      let val = promo[header];
-
-      if ((header === "items" || header === "stores") && Array.isArray(val)) {
-        val = val.map(i => i.name).join(', ');
-      }
-      else if (header === "tactic" && val && typeof val === 'object') {
-        console.log('here it should come >>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-        
-        val = val.type;
-      }
-
-      if (val == null) val = "";
-
-      return `"${String(val).replace(/"/g, '""')}"`;
-    });
-
-    csvRows.push(values.join(','));
-  }
-
-  const csvContent = csvRows.join('\n');
-
-  console.log(`CSV written to ${filename}`);
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Promotions");
+  XLSX.writeFile(workbook, filename);
+  console.log(`Excel written to ${filename} is Successfuly Done👍`);
 };
 
 const App = () => {
