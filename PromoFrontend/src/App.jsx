@@ -2,8 +2,56 @@ import { useState, useEffect } from 'react';
 import { PromoTable } from './PromoTable';
 import { AddPromoBtn } from './AddPromoBtn';
 import './css/App.css';
-import { ResetIcon } from './Icons';
-import { ExportIcon } from './Icons';
+import { ResetIcon, ExportIcon } from './Icons';
+
+const downloadPromoCSV = (promotions, filename = "promotions.csv") => {
+  if (!promotions || promotions.length === 0) {
+    console.log("No promotions to download.");
+    return;
+  }
+
+  console.log(promotions);
+
+  const headers = Object.keys(promotions[0]);
+
+  const csvRows = [];
+
+  csvRows.push(headers.join(','));
+
+  for (const promo of promotions) {
+    const values = headers.map(header => {
+      let val = promo[header];
+
+      if ((header === "items" || header === "stores") && Array.isArray(val)) {
+        val = val.map(i => i.name).join(', ');
+      }
+      else if (header === "tactic" && val && typeof val === 'object') {
+        console.log('here it should come >>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        
+        val = val.type;
+      }
+
+      if (val == null) val = "";
+
+      return `"${String(val).replace(/"/g, '""')}"`;
+    });
+
+    csvRows.push(values.join(','));
+  }
+
+  const csvContent = csvRows.join('\n');
+
+  console.log(`CSV written to ${filename}`);
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 const App = () => {
   const [promotions, setPromotions] = useState([]);
@@ -48,8 +96,6 @@ const App = () => {
       .catch((err) => console.error("Failed to fetch options", err));
   }, []);
 
-
-
   return (
     <main>
       <h1>Promo Manager</h1>
@@ -63,7 +109,7 @@ const App = () => {
             onPromoSave={fetchPromotions}
             options={options}
           />
-          <button>{ExportIcon}Export</button>
+          <button onClick={() => downloadPromoCSV(promotions)}>{ExportIcon}Export</button>
         </div>
 
         <ResetIcon
@@ -81,7 +127,6 @@ const App = () => {
         setSortOrder={setSortOrder}
         options={options}
       />
-
 
     </main>
   );
