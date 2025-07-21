@@ -90,7 +90,7 @@ const App = () => {
 
         <ResetIcon
           className="reset-btn"
-          onClick={() => window.location.reload()}
+          onClick={() => fetchPromotions()}
         />
       </div>
 
